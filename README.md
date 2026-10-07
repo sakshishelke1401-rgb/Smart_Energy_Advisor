@@ -2,7 +2,7 @@
 
 Three standalone HTML pages, each fully self-contained (open directly in any browser, no server needed):
 
-1. **1_welcome.html** — Landing/welcome page with the lightbulb mascot (cursor-tracking eyes) and animated flowing background
+1. **index.html** — Landing/welcome page with the lightbulb mascot (cursor-tracking eyes) and animated flowing background
 2. **2_add_bill.html** — Data input page: choose CSV upload, manual entry, or bill photo (OCR)
 3. **3_dashboard.html** — Main dashboard: uploaded bill summary, forecast, consumption trend chart, appliance breakdown, what-if simulator, and recommendations
 
