@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Energy Advisor — Footer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@900&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0; min-height:100vh; font-family:'DM Sans',Arial,sans-serif; font-weight:400; color:#0A1F17; background:#E7F3EC; font-synthesis:none; position:relative;}
+
+  /* ---- original flowing-motion background ---- */
+  .bg-anim{position:fixed; inset:0; z-index:-2; overflow:hidden; background:#E7F3EC;}
+  .blob{position:absolute; filter:blur(70px); opacity:.6; background:radial-gradient(circle at 30% 30%, var(--c1), var(--c2) 70%);}
+  .b1{--c1:#6EEBAE; --c2:#49E09B; width:50vw; height:50vw; left:-14vw; top:-16vw; animation:morph1 14s ease-in-out infinite, drift1 22s ease-in-out infinite;}
+  .b2{--c1:#C7F2D9; --c2:#8FE0B8; width:38vw; height:38vw; right:-10vw; top:4vw; animation:morph2 17s ease-in-out infinite, drift2 26s ease-in-out infinite;}
+  .b3{--c1:#F7EFB0; --c2:#F2DD8A; width:42vw; height:42vw; left:18vw; bottom:-20vw; animation:morph3 19s ease-in-out infinite, drift3 24s ease-in-out infinite;}
+  .b4{--c1:#AEE8D2; --c2:#6EEBAE; width:26vw; height:26vw; right:18vw; bottom:-6vw; opacity:.45; animation:morph1 21s ease-in-out infinite reverse, drift2 18s ease-in-out infinite;}
+  @keyframes morph1{0%,100%{border-radius:42% 58% 63% 37% / 41% 44% 56% 59%;} 50%{border-radius:63% 37% 41% 59% / 58% 46% 54% 42%;}}
+  @keyframes morph2{0%,100%{border-radius:58% 42% 36% 64% / 55% 48% 52% 45%;} 50%{border-radius:39% 61% 61% 39% / 44% 60% 40% 56%;}}
+  @keyframes morph3{0%,100%{border-radius:50% 50% 38% 62% / 46% 62% 38% 54%;} 50%{border-radius:62% 38% 55% 45% / 38% 46% 54% 62%;}}
+  @keyframes drift1{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(4vw,6vw) scale(1.08);}}
+  @keyframes drift2{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-5vw,4vw) scale(1.1);}}
+  @keyframes drift3{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(3vw,-5vw) scale(1.06);}}
+  .bg-anim::after{
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(10,31,23,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,31,23,.035) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image:radial-gradient(ellipse 80% 70% at 50% 30%, #000 40%, transparent 90%);
+  }
+  @media (prefers-reduced-motion: reduce){ .blob{animation:none;} }
+
+  .topnav{position:absolute; top:24px; left:0; right:0; display:flex; justify-content:center; gap:22px; font-size:13px; font-weight:600; color:#4A5C54; z-index:5;}
+  .topnav a{color:inherit; text-decoration:none;}
+  .topnav a.active{color:#0A1F17;}
+  @media (max-width:700px){ .topnav{position:static; margin-bottom:8px; justify-content:flex-start;} }
+
+  .footer{position:relative; min-height:100vh; padding-top:6.5vw; isolation:isolate; overflow:hidden;}
+  .jobs{margin-left:8.5vw; width:25vw;}
+  .tag{display:inline-flex; align-items:center; border-radius:100px; background:#ffffff; padding:.4vw .7vw; font-size:.85vw; line-height:1.2; height:1.9vw; white-space:nowrap; border:1px solid rgba(10,31,23,.08);}
+  .headline{font-family:'Epilogue',Arial,sans-serif; font-weight:900; font-size:1.66vw; line-height:1.15; letter-spacing:-0.01em;}
+  .job-title{display:block; margin-top:1.3vw;}
+  .footer-nav{display:flex; flex-direction:column; align-items:flex-start; gap:.9vw; margin-top:1.3vw; font-size:1.05vw; line-height:1.35; font-weight:500;}
+  .footer-nav span{position:relative; padding-left:0; cursor:default;}
+
+  .logo{position:absolute; left:39.5vw; top:7.2vw; width:19vw; display:flex; align-items:center; gap:.6vw; pointer-events:none;}
+  .logo svg{width:2.2vw; height:2.2vw; flex-shrink:0;}
+  .logo span{font-family:'Epilogue',Arial,sans-serif; font-weight:900; font-size:1.55vw; letter-spacing:-0.01em; white-space:nowrap;}
+
+  .contact{position:absolute; left:73vw; top:6.5vw; width:20vw;}
+  .contact-links{display:flex; flex-direction:column; align-items:flex-start; margin-top:1.3vw; white-space:nowrap;}
+  .note{margin:1vw 0 0; font-size:.75vw; line-height:1.4; max-width:17vw; color:rgba(10,31,23,.75);}
+  .socials{display:flex; align-items:center; gap:1.3vw; margin-top:1.5vw;}
+  .socials span{display:flex; width:1.9vw; height:1.9vw; border-radius:50%; background:#fff; align-items:center; justify-content:center; border:1px solid rgba(10,31,23,.08);}
+  .socials svg{width:1vw; height:1vw;}
+
+  /* mascot stage */
+  .mascot-wrap{position:absolute; inset:0; z-index:-1; pointer-events:none; display:flex; align-items:center; justify-content:center;}
+  .mascot{width:min(46vw,540px);}
+  .pupil{transition:transform .05s linear;}
+
+  footer-note{display:block;}
+  .bottom-note{position:absolute; bottom:3vw; left:0; right:0; text-align:center; font-size:.75vw; color:rgba(10,31,23,.55);}
+
+  @media (max-width:700px){
+    body{background:#EEF7F1;}
+    .footer{display:flex; flex-direction:column; gap:32px; min-height:100svh; padding:36px 22px 0;}
+    .logo{position:static; order:0; width:auto; margin-bottom:2px;}
+    .logo svg{width:34px; height:34px;}
+    .logo span{font-size:19px;}
+    .jobs{order:1; margin:0; width:100%;}
+    .tag{height:30px; padding:6px 12px; font-size:14px;}
+    .headline{font-size:clamp(22px,6.3vw,28px); line-height:1.22;}
+    .job-title,.contact-links{margin-top:16px;}
+    .footer-nav{display:grid; grid-template-columns:1fr 1fr; gap:0 20px; margin-top:18px; font-size:16px;}
+    .footer-nav span{min-height:40px; display:flex; align-items:center;}
+    .contact{position:static; order:2; width:100%;}
+    .note{max-width:34ch; font-size:14px; margin-top:14px;}
+    .socials{margin-top:18px;}
+    .socials span{width:40px; height:40px;}
+    .socials svg{width:18px; height:18px;}
+    .mascot-wrap{position:relative; inset:auto; order:3; z-index:auto; width:calc(100% + 44px); margin:-8px -22px 0; aspect-ratio:4/3;}
+    .mascot{width:70%;}
+    .bottom-note{position:static; margin-top:10px; padding-bottom:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="bg-anim" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+</div>
+
+<footer class="footer" aria-label="Footer">
+  <div class="topnav">
+    <a href="index.html" class="active">Welcome</a>
+    <a href="2_add_bill.html">Add Bill</a>
+    <a href="3_dashboard.html">Dashboard</a>
+  </div>
+
+  <div class="mascot-wrap" aria-hidden="true">
+    <svg class="mascot" viewBox="0 0 400 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="230" r="150" fill="#C8ECD9"/>
+
+      <!-- bulb hat: little screw-cap "hat" on top -->
+      <rect x="178" y="58" width="44" height="22" rx="5" fill="#2F3B35"/>
+      <rect x="183" y="80" width="34" height="7" fill="#2F3B35" opacity="0.6"/>
+      <rect x="183" y="91" width="34" height="7" fill="#2F3B35" opacity="0.6"/>
+      <line x1="200" y1="58" x2="200" y2="40" stroke="#2F3B35" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="200" cy="34" r="7" fill="#F2C94C"/>
+
+      <!-- bulb body -->
+      <path d="M200 104c-50 0-88 38-88 88 0 38 23 62 40 78 9 9 13 18 13 29v6h70v-6c0-11 4-20 13-29 17-16 40-40 40-78 0-50-38-88-88-88z" fill="#F7E7A6"/>
+      <path d="M200 104c-50 0-88 38-88 88 0 38 23 62 40 78 9 9 13 18 13 29v6h70v-6c0-11 4-20 13-29 17-16 40-40 40-78 0-50-38-88-88-88z" fill="#F2C94C" opacity="0.25"/>
+
+      <!-- base / screw threads -->
+      <rect x="173" y="305" width="54" height="10" rx="2" fill="#B7BDC2"/>
+      <rect x="176" y="317" width="48" height="9" rx="2" fill="#9CA3A8"/>
+      <rect x="179" y="328" width="42" height="9" rx="2" fill="#B7BDC2"/>
+      <rect x="183" y="339" width="34" height="10" rx="3" fill="#7B8186"/>
+
+      <!-- face -->
+      <g id="eyes">
+        <circle cx="172" cy="195" r="22" fill="#0A1F17"/>
+        <circle cx="228" cy="195" r="22" fill="#0A1F17"/>
+        <circle class="pupil" id="pupilL" cx="172" cy="195" r="9" fill="#F7E7A6"/>
+        <circle class="pupil" id="pupilR" cx="228" cy="195" r="9" fill="#F7E7A6"/>
+      </g>
+      <path d="M178 238 Q200 256 222 238" stroke="#0A1F17" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <circle cx="152" cy="220" r="10" fill="#F2A7A0" opacity="0.6"/>
+      <circle cx="248" cy="220" r="10" fill="#F2A7A0" opacity="0.6"/>
+    </svg>
+  </div>
+
+  <div class="jobs">
+    <span class="tag">have a usage spike?</span>
+    <span class="headline job-title">save energy,<br>live smarter</span>
+    <div class="footer-nav">
+      <span>Dashboard</span>
+      <span>Appliances</span>
+      <span>What-If</span>
+      <span>Get Tips</span>
+    </div>
+  </div>
+
+  <div class="logo" role="img" aria-label="Smart Energy Advisor logo">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" fill="#49E09B"/></svg>
+    <span>Energy Advisor</span>
+  </div>
+
+  <div class="contact">
+    <span class="tag">say hey</span>
+    <div class="headline contact-links">
+      <span>let's cut your bill!</span>
+      <span>share your usage*</span>
+    </div>
+    <p class="note">*good savings start with one bill. let's forecast yours.</p>
+    <div class="socials">
+      <span aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#0A1F17" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#0A1F17"/></svg></span>
+      <span aria-label="GitHub"><svg viewBox="0 0 24 24" fill="none" stroke="#0A1F17" stroke-width="1.8"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></span>
+      <span aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="#0A1F17" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+    </div>
+  </div>
+
+  <div class="bottom-note">Smart Energy Advisor — final-year Data Science field project</div>
+</footer>
+
+<script>
+  const pupilL = document.getElementById('pupilL');
+  const pupilR = document.getElementById('pupilR');
+  const eyesGroup = document.getElementById('eyes');
+  const eyeCenters = [{x:172,y:195},{x:228,y:195}];
+  const maxOffset = 7;
+
+  function updateEyes(clientX, clientY){
+    const svg = document.querySelector('.mascot');
+    const rect = svg.getBoundingClientRect();
+    const scaleX = 400 / rect.width;
+    const scaleY = 420 / rect.height;
+    const localX = (clientX - rect.left) * scaleX;
+    const localY = (clientY - rect.top) * scaleY;
+
+    [ [pupilL, eyeCenters[0]], [pupilR, eyeCenters[1]] ].forEach(([pupil, center])=>{
+      const dx = localX - center.x;
+      const dy = localY - center.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const clamped = Math.min(maxOffset, dist / 8);
+      const nx = center.x + (dx/dist) * clamped;
+      const ny = center.y + (dy/dist) * clamped;
+      pupil.setAttribute('cx', nx);
+      pupil.setAttribute('cy', ny);
+    });
+  }
+
+  const isMobile = window.matchMedia('(max-width:700px)');
+  if(!isMobile.matches){
+    window.addEventListener('pointermove', (e)=> updateEyes(e.clientX, e.clientY), {passive:true});
+  }
+</script>
+<script>
+window.WATT_CONFIG = {
+  greeting: "Hi, I'm Watt ⚡ — your guide around Smart Energy Advisor. This is the welcome page. Want a quick tour?",
+  options: [
+    {q:"What is this project?", a:"Smart Energy Advisor forecasts your next electricity bill, breaks down which appliances use the most, and gives you personalized saving tips — all from your own bill history."},
+    {q:"Where do I start?", a:"Click 'Add Bill' in the nav above to upload your bill data — CSV, manual entry, or just a photo."},
+    {q:"Who made this?", a:"A final-year Data Science field project by Sakshi Shelke."}
+  ]
+};
+</script>
+<style>
+  .watt-fab{
+    position:fixed; right:22px; bottom:22px; z-index:50;
+    width:60px; height:60px; border-radius:50%; background:#fff;
+    box-shadow:0 10px 28px -10px rgba(10,31,23,.35); border:2px solid var(--accent,#49E09B);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    animation:wattFloat 3s ease-in-out infinite;
+  }
+  @keyframes wattFloat{0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);}}
+  .watt-fab svg{width:34px; height:34px;}
+  .watt-fab .wpupil{transition:transform .08s linear;}
+  .watt-badge{position:absolute; top:-2px; right:-2px; width:14px; height:14px; border-radius:50%; background:#49E09B; border:2px solid #fff;}
+
+  .watt-panel{
+    position:fixed; right:22px; bottom:96px; z-index:50; width:300px; max-width:calc(100vw - 44px);
+    background:#fff; border-radius:18px; box-shadow:0 20px 50px -16px rgba(10,31,23,.35);
+    border:1px solid rgba(10,31,23,.08); overflow:hidden;
+    transform:translateY(16px) scale(.96); opacity:0; pointer-events:none;
+    transition:transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s ease;
+  }
+  .watt-panel.open{transform:translateY(0) scale(1); opacity:1; pointer-events:auto;}
+  .watt-head{display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--accent-dim,#E3F7EC);}
+  .watt-head svg{width:28px; height:28px;}
+  .watt-head .name{font-family:'Epilogue',sans-serif; font-weight:700; font-size:14px;}
+  .watt-head .status{font-size:11px; color:#1C8F5E;}
+  .watt-body{padding:14px 16px; max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;}
+  .watt-msg{background:#F4F9F6; border-radius:12px; padding:10px 12px; font-size:12.5px; line-height:1.5; animation:wattMsgIn .3s ease both;}
+  @keyframes wattMsgIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  .watt-actions{padding:10px 16px 16px; display:flex; flex-direction:column; gap:7px;}
+  .watt-btn{
+    background:#fff; border:1.5px solid rgba(10,31,23,.1); border-radius:10px; padding:9px 12px;
+    font-family:'DM Sans',sans-serif; font-size:12px; text-align:left; cursor:pointer; transition:border-color .15s,background .15s;
+  }
+  .watt-btn:hover{border-color:var(--accent,#49E09B); background:var(--accent-dim,#E3F7EC);}
+  @media (prefers-reduced-motion: reduce){ .watt-fab{animation:none;} }
+</style>
+
+<div class="watt-fab" id="wattFab" title="Ask Watt">
+  <svg viewBox="0 0 100 100" fill="none">
+    <circle cx="50" cy="50" r="46" fill="#F7E7A6"/>
+    <circle cx="38" cy="46" r="7" fill="#0A1F17"/>
+    <circle cx="62" cy="46" r="7" fill="#0A1F17"/>
+    <circle class="wpupil" id="wPupilL" cx="38" cy="46" r="2.8" fill="#F7E7A6"/>
+    <circle class="wpupil" id="wPupilR" cx="62" cy="46" r="2.8" fill="#F7E7A6"/>
+    <path d="M40 62 Q50 70 60 62" stroke="#0A1F17" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </svg>
+  <div class="watt-badge"></div>
+</div>
+
+<div class="watt-panel" id="wattPanel">
+  <div class="watt-head">
+    <svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="46" fill="#F7E7A6"/>
+      <circle cx="38" cy="46" r="6" fill="#0A1F17"/><circle cx="62" cy="46" r="6" fill="#0A1F17"/>
+      <path d="M40 62 Q50 70 60 62" stroke="#0A1F17" stroke-width="3" stroke-linecap="round" fill="none"/>
+    </svg>
+    <div><div class="name">Watt</div><div class="status">● here to help</div></div>
+  </div>
+  <div class="watt-body" id="wattBody"></div>
+  <div class="watt-actions" id="wattActions"></div>
+</div>
+
+<script>
+(function(){
+  const fab = document.getElementById('wattFab');
+  const panel = document.getElementById('wattPanel');
+  const body = document.getElementById('wattBody');
+  const actions = document.getElementById('wattActions');
+  const pL = document.getElementById('wPupilL');
+  const pR = document.getElementById('wPupilR');
+
+  // cursor-follow eyes on the floating button
+  function moveEyes(clientX, clientY){
+    const rect = fab.getBoundingClientRect();
+    const scale = 100/60;
+    const localX = (clientX-rect.left)*scale, localY=(clientY-rect.top)*scale;
+    [[pL,38,46],[pR,62,46]].forEach(([el,cx,cy])=>{
+      const dx=localX-cx, dy=localY-cy, dist=Math.hypot(dx,dy)||1, clamp=Math.min(2.4,dist/14);
+      el.setAttribute('cx',cx+(dx/dist)*clamp); el.setAttribute('cy',cy+(dy/dist)*clamp);
+    });
+  }
+  window.addEventListener('pointermove', e=>moveEyes(e.clientX,e.clientY), {passive:true});
+
+  function addMsg(text){
+    const m=document.createElement('div'); m.className='watt-msg'; m.textContent=text; body.appendChild(m);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  // Page-specific guidance (set via window.WATT_CONFIG before this script runs)
+  const cfg = window.WATT_CONFIG || { greeting:"Hi, I'm Watt! Ask me anything about this page.", options:[] };
+
+  let opened=false;
+  fab.addEventListener('click', ()=>{
+    panel.classList.toggle('open');
+    if(!opened){ opened=true; addMsg(cfg.greeting); renderActions(); }
+  });
+
+  function renderActions(){
+    actions.innerHTML='';
+    cfg.options.forEach(opt=>{
+      const b=document.createElement('button'); b.className='watt-btn'; b.textContent=opt.q;
+      b.addEventListener('click', ()=> addMsg(opt.a));
+      actions.appendChild(b);
+    });
+  }
+})();
+</script>
+</body>
+</html>
