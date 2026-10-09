@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smart Energy Advisor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAF5EF; --panel:#FFFFFF; --panel2:#F3FAF6; --ink:#0A1F17; --sub:#4F665B; --line:rgba(10,31,23,.1);
+  --acc:#49E09B; --accd:#DDF5E8; --acct:#1C8F5E; --warn:#D9A82B; --warnd:#FBF1D6; --glow:.55;
+  --head:'Epilogue',system-ui,sans-serif; --body:'DM Sans',system-ui,sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#07130F; --panel:#0F1F19; --panel2:#0B1813; --ink:#E8F4EE; --sub:#93AB9F; --line:rgba(255,255,255,.11); --accd:#12392A; --acct:#49E09B; --warnd:#3D3212; --glow:.28;}
+}
+:root[data-theme="dark"]{--bg:#07130F; --panel:#0F1F19; --panel2:#0B1813; --ink:#E8F4EE; --sub:#93AB9F; --line:rgba(255,255,255,.11); --accd:#12392A; --acct:#49E09B; --warnd:#3D3212; --glow:.28;}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-snap-type:y proximity; scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0; background:var(--bg); color:var(--ink); font:400 16px/1.55 var(--body);}
+
+/* animated background */
+.bg{position:fixed; inset:0; z-index:-2; overflow:hidden; background:var(--bg);}
+.blob{position:absolute; filter:blur(70px); opacity:var(--glow); background:radial-gradient(circle at 30% 30%,var(--c1),var(--c2) 70%);}
+.b1{--c1:#6EEBAE; --c2:#49E09B; width:50vw; height:50vw; left:-14vw; top:-16vw; animation:m1 14s ease-in-out infinite,d1 22s ease-in-out infinite;}
+.b2{--c1:#C7F2D9; --c2:#8FE0B8; width:38vw; height:38vw; right:-10vw; top:4vw; animation:m2 17s ease-in-out infinite,d2 26s ease-in-out infinite;}
+.b3{--c1:#F7EFB0; --c2:#F2DD8A; width:42vw; height:42vw; left:18vw; bottom:-20vw; animation:m1 19s ease-in-out infinite reverse,d3 24s ease-in-out infinite;}
+@keyframes m1{0%,100%{border-radius:42% 58% 63% 37%/41% 44% 56% 59%;}50%{border-radius:63% 37% 41% 59%/58% 46% 54% 42%;}}
+@keyframes m2{0%,100%{border-radius:58% 42% 36% 64%/55% 48% 52% 45%;}50%{border-radius:39% 61% 61% 39%/44% 60% 40% 56%;}}
+@keyframes d1{50%{transform:translate(4vw,6vw) scale(1.08);}}
+@keyframes d2{50%{transform:translate(-5vw,4vw) scale(1.1);}}
+@keyframes d3{50%{transform:translate(3vw,-5vw) scale(1.06);}}
+
+/* top bar */
+.top{position:fixed; top:0; left:0; right:0; z-index:40; display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:space-between; align-items:center;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 28px 12px; background:color-mix(in srgb,var(--bg) 72%,transparent); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);}
+.brand{display:flex; align-items:center; gap:10px; font:900 20px var(--head); color:var(--ink); text-decoration:none;}
+.brand svg{width:26px; height:26px;}
+nav{display:flex; gap:6px;}
+nav a{padding:8px 16px; border-radius:22px; font-weight:600; font-size:15px; color:var(--sub); text-decoration:none; transition:background .2s,color .2s;}
+nav a.on{background:var(--accd); color:var(--acct);}
+
+.screen{min-height:100vh; scroll-snap-align:start; max-width:1160px; margin:0 auto; padding:104px 28px 64px; position:relative;}
+[data-r]{opacity:0; transform:translateY(24px); transition:opacity .7s var(--e,ease),transform .7s ease; transition-delay:var(--d,0s);}
+[data-r].in{opacity:1; transform:none;}
+.eyebrow{display:inline-block; background:var(--accd); color:var(--acct); font-weight:600; font-size:14px; padding:6px 14px; border-radius:20px;}
+h1,h2,h3,h4{font-family:var(--head); margin:0;}
+h1{font-weight:900; letter-spacing:-.02em; line-height:1.08; font-size:clamp(34px,5vw,56px);}
+h2{font-weight:900; font-size:clamp(28px,3.6vw,38px); letter-spacing:-.01em; margin:14px 0 8px;}
+.lead{font-size:18px; color:var(--sub); max-width:520px; margin:14px 0 0;}
+.card{background:var(--panel); border:1.5px solid var(--line); border-radius:22px; padding:26px;}
+.btn{display:inline-flex; justify-content:center; align-items:center; gap:8px; width:100%; background:var(--ink); color:var(--bg); border:0; border-radius:14px; padding:14px 22px; font:600 16px var(--body); cursor:pointer; transition:transform .15s;}
+.btn:hover{transform:translateY(-2px);}
+.btn.ghost{background:transparent; color:var(--ink); border:1.5px solid var(--line); margin-top:10px;}
+.btn.auto{width:auto;}
+.pill{font-size:12.5px; padding:4px 11px; border-radius:20px; font-weight:600; white-space:nowrap;}
+.pill.ok{background:var(--accd); color:var(--acct);} .pill.warn{background:var(--warnd); color:var(--warn);}
+
+/* login */
+.login{display:grid; grid-template-columns:1.1fr 1fr; gap:48px; align-items:center; min-height:calc(100vh - 190px);}
+.mwrap{width:min(300px,70vw); margin-bottom:22px;}
+.mascot{width:100%; height:auto; display:block;}
+.mbg{fill:var(--accd);}
+.lcard label{display:block; font-weight:600; font-size:14.5px; color:var(--sub); margin-top:16px;}
+.lcard input{display:block; width:100%; margin-top:6px; padding:13px 14px; border:1.5px solid var(--line); border-radius:12px; background:var(--panel2); color:var(--ink); font:400 16px var(--body);}
+.lcard input:focus{outline:2px solid var(--acc); border-color:transparent;}
+.lcard .btn{margin-top:22px;} .lcard .btn.ghost{margin-top:10px;}
+.small{font-size:14.5px; color:var(--sub); text-align:center; margin:16px 0 0;} .small a{color:var(--acct); font-weight:600;}
+.hint{position:absolute; left:50%; bottom:22px; transform:translateX(-50%); color:var(--sub); font-weight:600; font-size:14px; text-decoration:none; animation:bob 1.8s ease-in-out infinite;}
+@keyframes bob{50%{transform:translate(-50%,6px);}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1);}96%{transform:scaleY(.1);}}
+.eye{animation:blink 4.5s infinite; transform-box:fill-box; transform-origin:center; transition:transform .18s ease;}
+#mpL,#mpR{transition:opacity .15s;}
+#mascot.shut .eye{animation:none; transform:scaleY(.09);}
+#mascot.shut #mpL,#mascot.shut #mpR{opacity:0;}
+
+/* add bill */
+.opts{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:28px;}
+.opt{background:var(--panel); border:1.5px solid var(--line); border-radius:22px; padding:26px 22px; cursor:pointer; display:flex; flex-direction:column; gap:12px; transition:transform .2s,border-color .2s,background .2s;}
+.opt:hover{transform:translateY(-4px); border-color:var(--acc);}
+.opt.sel{border-color:var(--acc); background:var(--accd);}
+.ib{width:52px; height:52px; border-radius:15px; background:var(--accd); color:var(--acct); display:flex; align-items:center; justify-content:center;}
+.opt.sel .ib{background:var(--panel);}
+.opt h3{font-size:19px;} .opt p{margin:0; color:var(--sub); font-size:15px; flex:1;} .opt .t{font-size:13px; font-weight:600; color:var(--acct);}
+.panel{margin-top:22px; background:var(--panel); border:1.5px solid var(--line); border-radius:22px; padding:28px;}
+.panel h4{font-size:19px; margin-bottom:4px;} .panel .s{color:var(--sub); font-size:15px; margin-bottom:18px;}
+.drop{border:2px dashed var(--line); border-radius:16px; padding:34px 18px; text-align:center; color:var(--sub); background:var(--panel2);}
+.drop b{color:var(--ink);}
+.row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+.f{flex:1; min-width:170px;} .f label{display:block; font-size:14px; font-weight:600; color:var(--sub); margin-bottom:6px;}
+.f input{width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; background:var(--panel2); color:var(--ink); font:400 16px var(--body);}
+.pbox{display:flex; gap:18px; align-items:center; flex-wrap:wrap;}
+.pb{width:110px; height:110px; border-radius:16px; border:2px dashed var(--line); display:flex; align-items:center; justify-content:center; color:var(--sub); background:var(--panel2);}
+.next{margin-top:22px; display:flex; justify-content:flex-end;}
+
+/* dashboard */
+.sub{color:var(--sub); font-size:15px;}
+.g{display:grid; gap:16px; margin-top:16px;}
+.g2{grid-template-columns:1.4fr 1fr;} .g-h{grid-template-columns:1.3fr 1fr;}
+.billrow{display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-top:14px;}
+.billrow .ic{width:58px; height:58px; border-radius:14px; background:var(--accd); color:var(--acct); display:flex; align-items:center; justify-content:center;}
+.kv{display:flex; gap:28px; flex-wrap:wrap; flex:1;} .kv small{display:block; color:var(--sub); font-size:13px;} .kv b{font:700 18px var(--head);}
+.hero{display:flex; flex-direction:column; justify-content:space-between; gap:16px; background:linear-gradient(160deg,var(--panel),var(--accd));}
+.big{font:900 58px/1 var(--head); letter-spacing:-.02em; margin-top:8px;} .big small{font:500 18px var(--body); color:var(--sub); margin-left:8px;}
+.bar{height:8px; border-radius:5px; background:var(--accd); overflow:hidden; position:relative;} .bar i{position:absolute; top:0; bottom:0; left:36%; width:0; background:var(--acc); border-radius:5px; transition:width 1.1s cubic-bezier(.2,.7,.2,1);}
+.lab{display:flex; justify-content:space-between; font-size:13px; color:var(--sub); margin-top:6px;}
+.minis{display:flex; flex-direction:column; gap:12px;}
+.mini{background:var(--panel); border:1.5px solid var(--line); border-radius:18px; padding:16px 18px; display:flex; justify-content:space-between; align-items:center;}
+.mini small{display:block; color:var(--sub); font-size:13.5px;} .mini b{font:700 20px var(--head);}
+.chart svg{width:100%; height:auto; display:block;}
+.ln{fill:none; stroke:var(--acc); stroke-width:3.2; stroke-linecap:round;} .fc{fill:none; stroke:var(--acc); stroke-width:3; stroke-dasharray:6 6;}
+.ar{fill:var(--acc); opacity:.12;} .gl{stroke:var(--line);} .tx{fill:var(--sub); font:12px var(--body);}
+.note{margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--warnd); font-size:14.5px; display:flex; gap:10px;}
+.note i{width:8px; height:8px; border-radius:50%; background:var(--warn); margin-top:8px; flex-shrink:0;}
+.ap{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;} .ap:last-child{border:0;}
+.ap span:first-child{width:118px; flex-shrink:0;} .ap em{font-style:normal; width:40px; text-align:right; color:var(--sub); font-size:14px;}
+.ap div{flex:1; height:8px; background:var(--accd); border-radius:5px; overflow:hidden;} .ap div i{display:block; height:100%; width:0; background:var(--acc); border-radius:5px; transition:width 1.1s cubic-bezier(.2,.7,.2,1);}
+.sim{display:flex; gap:18px; align-items:center; flex-wrap:wrap; margin-top:12px;}
+select{background:var(--panel2); color:var(--ink); border:1.5px solid var(--line); border-radius:12px; padding:11px 14px; font:400 16px var(--body);}
+.sl{flex:1; min-width:200px;} input[type=range]{width:100%; accent-color:var(--acc);}
+.sl div{display:flex; justify-content:space-between; font-size:13px; color:var(--sub);}
+.res{display:flex; gap:34px; margin-top:18px; flex-wrap:wrap;} .res small{display:block; color:var(--sub); font-size:14px;} .res b{font:900 28px var(--head);} .res .sv b{color:var(--acct);}
+.recs{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
+.rec{padding:14px 16px; border-radius:14px; background:var(--panel2); border:1px solid var(--line); font-size:15.5px;} .rec b{display:block; color:var(--acct); font-size:14px; margin-bottom:2px;}
+.foot{margin-top:26px; text-align:center; color:var(--sub); font-size:14px;}
+
+/* Watt chatbot */
+/* guided tour: spotlight + floating coach marks */
+html.lock{overflow:hidden;}
+.dim{position:fixed; inset:0; z-index:90; background:color-mix(in srgb,var(--bg) 38%,transparent); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); opacity:0; pointer-events:none; transition:opacity .35s,clip-path .5s cubic-bezier(.2,.8,.2,1);}
+.dim.on{opacity:1; pointer-events:auto;}
+.ring{position:fixed; z-index:91; border:3px solid var(--acc); pointer-events:none; opacity:0; transition:opacity .3s;}
+.ring.on{opacity:1;}
+.ring::after{content:""; position:absolute; inset:-3px; border-radius:inherit; animation:rp 1.8s ease-out infinite;}
+@keyframes rp{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent);}100%{box-shadow:0 0 0 20px transparent;}}
+.tip{position:fixed; z-index:92; left:0; top:0; width:min(340px,calc(100vw - 24px)); background:var(--panel); border:1.5px solid var(--acc); border-radius:20px; padding:16px 18px 14px; box-shadow:0 24px 60px -18px rgba(0,0,0,.5); opacity:0; transform:translateY(8px) scale(.97); pointer-events:none; transition:opacity .3s,transform .3s;}
+.tip.on{opacity:1; transform:none; pointer-events:auto;}
+.tip::before{content:""; position:absolute; width:14px; height:14px; background:var(--panel); border:1.5px solid var(--acc); transform:rotate(45deg); left:var(--ax,50%); margin-left:-7px;}
+.tip.b::before{top:-8px; border-right:0; border-bottom:0;}
+.tip.t::before{bottom:-8px; border-left:0; border-top:0;}
+.tip.r::before{left:-8px; margin-left:0; top:var(--ay,50%); margin-top:-7px; border-top:0; border-right:0;}
+.tip.l::before{left:auto; right:-8px; margin-left:0; top:var(--ay,50%); margin-top:-7px; border-left:0; border-bottom:0;}
+.tip.n::before{display:none;}
+.th{display:flex; align-items:center; gap:10px; margin-bottom:8px;} .th svg{width:30px; height:30px; flex-shrink:0;}
+.th b{font:700 15px var(--head);} .th small{margin-left:auto; color:var(--sub); font-size:13px; font-weight:600;}
+.tip h4{font:900 20px/1.25 var(--head); margin:0 0 6px;} .tip p{margin:0; font-size:16px; line-height:1.5;}
+.ta{display:flex; gap:10px; margin-top:14px; align-items:center; flex-wrap:wrap;}
+.ta .btn{width:auto; padding:10px 20px; font-size:15px;} .btn.try{background:var(--acc); color:#06130D;}
+.skip{margin-left:auto; background:none; border:0; color:var(--sub); font:600 14px var(--body); cursor:pointer; text-decoration:underline; padding:4px 2px;}
+.resume{position:fixed; left:24px; bottom:calc(24px + env(safe-area-inset-bottom,0px)); z-index:70; display:flex; align-items:center; gap:6px; background:var(--ink); color:var(--bg); border-radius:30px; padding:8px 8px 8px 20px; font-weight:600; font-size:15px; opacity:0; transform:translateY(20px); pointer-events:none; transition:opacity .3s,transform .3s;}
+.resume.on{opacity:1; transform:none; pointer-events:auto;}
+.resume .btn{width:auto; padding:9px 16px; font-size:14.5px; background:var(--acc); color:#06130D;}
+.resume #rx{background:none; border:0; color:inherit; cursor:pointer; font-size:17px; padding:6px 10px;}
+.spot{border-radius:22px; outline:3px solid var(--acc); outline-offset:6px; animation:spot 1.6s ease-out 4;}
+@keyframes spot{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent);}100%{box-shadow:0 0 0 24px transparent;}}
+.rt{margin-left:auto; background:var(--panel); border:1.5px solid var(--line); color:var(--ink); border-radius:16px; padding:6px 12px; font:600 13.5px var(--body); cursor:pointer;} .rt:hover{border-color:var(--acc);}
+.fab.hold{animation:none;}
+@media (max-width:860px){.resume{left:14px;}}
+
+.fab{position:fixed; right:22px; bottom:calc(22px + env(safe-area-inset-bottom,0px)); z-index:60; width:68px; height:68px; border-radius:50%; background:var(--panel); border:2px solid var(--acc); cursor:pointer; box-shadow:0 12px 30px -10px rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; animation:fl 3s ease-in-out infinite;}
+@keyframes fl{50%{transform:translateY(-6px);}}
+.fab svg{width:44px; height:44px;} .fab::after{content:""; position:absolute; inset:-2px; border-radius:50%; border:2px solid var(--acc); animation:ring 2.4s ease-out infinite;}
+.fab.seen::after{display:none;}
+@keyframes ring{from{transform:scale(1); opacity:.7;}to{transform:scale(1.5); opacity:0;}}
+.chat{position:fixed; right:22px; bottom:calc(104px + env(safe-area-inset-bottom,0px)); z-index:60; width:370px; max-width:calc(100vw - 32px); height:min(580px,calc(100vh - 140px)); display:flex; flex-direction:column; background:var(--panel); border:1px solid var(--line); border-radius:22px; box-shadow:0 24px 60px -18px rgba(0,0,0,.45); overflow:hidden; transform:translateY(18px) scale(.96); opacity:0; pointer-events:none; transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .25s;}
+.chat.open{transform:none; opacity:1; pointer-events:auto;}
+.ch{display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--accd);} .ch svg{width:38px; height:38px;}
+.ch .x{margin-left:auto; width:34px; height:34px; border-radius:50%; border:0; background:transparent; color:var(--ink); font-size:24px; line-height:1; cursor:pointer;} .ch .x:hover{background:var(--panel);}
+.ch b{font:700 17px var(--head); display:block;} .ch small{color:var(--acct); font-size:13px;}
+.msgs{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px;}
+.m{max-width:86%; padding:11px 14px; border-radius:16px; font-size:15px; line-height:1.5; animation:mi .3s ease both;}
+@keyframes mi{from{opacity:0; transform:translateY(8px);}}
+.m.bot{background:var(--panel2); border:1px solid var(--line); border-bottom-left-radius:4px; align-self:flex-start;}
+.m.me{background:var(--acc); color:#06130D; border-bottom-right-radius:4px; align-self:flex-end; font-weight:500;}
+.dots span{display:inline-block; width:7px; height:7px; margin:0 2px; border-radius:50%; background:var(--sub); animation:dt 1s infinite;} .dots span:nth-child(2){animation-delay:.15s;} .dots span:nth-child(3){animation-delay:.3s;}
+@keyframes dt{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-5px);opacity:1;}}
+.chips{padding:4px 14px 10px; display:flex; flex-wrap:wrap; gap:8px;}
+.chip{background:var(--panel); border:1.5px solid var(--line); border-radius:18px; padding:8px 13px; font:500 14px var(--body); color:var(--ink); cursor:pointer; transition:border-color .15s,background .15s; animation:mi .35s ease both; animation-delay:var(--d,0s);}
+.chip:hover{border-color:var(--acc); background:var(--accd);} .chip.ex{background:var(--accd); border-color:var(--acc); color:var(--acct); font-weight:600;}
+.inp{display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line);}
+.inp input{flex:1; padding:11px 14px; border:1.5px solid var(--line); border-radius:22px; background:var(--panel2); color:var(--ink); font:400 15.5px var(--body); min-width:0;}
+.inp input:focus{outline:2px solid var(--acc); border-color:transparent;}
+.inp button{width:44px; height:44px; border-radius:50%; border:0; background:var(--acc); color:#06130D; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+
+@media (max-width:860px){
+  .login,.g2,.g-h,.opts{grid-template-columns:1fr;} .login{gap:28px;}
+  .screen{padding:118px 18px 60px;} .top{padding-left:16px; padding-right:16px;} .brand{font-size:17px;} nav a{padding:6px 12px; font-size:14px;}
+  .chat{right:12px; max-width:calc(100vw - 24px);} .fab{right:14px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,.blob,.fab,.fab::after,.hint{animation:none !important; transition:none !important;} [data-r]{opacity:1; transform:none;} html{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<header class="top">
+  <a class="brand" href="#login"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" fill="#49E09B"/></svg>Smart Energy Advisor</a>
+  <nav id="nav"><a href="#login" class="on">Login</a><a href="#add-bill">Add Bill</a><a href="#dashboard">Dashboard</a></nav>
+</header>
+
+<main>
+<!-- 1. LOGIN -->
+<section class="screen" id="login">
+  <div class="login">
+    <div data-r>
+      <div class="mwrap">
+        <svg class="mascot" id="mascot" viewBox="0 0 400 420" fill="none" aria-label="Friendly lightbulb mascot">
+          <circle class="mbg" cx="200" cy="230" r="150"/>
+          <rect x="178" y="58" width="44" height="22" rx="5" fill="#2F3B35"/><rect x="183" y="80" width="34" height="7" fill="#2F3B35" opacity=".6"/><rect x="183" y="91" width="34" height="7" fill="#2F3B35" opacity=".6"/>
+          <line x1="200" y1="58" x2="200" y2="40" stroke="#2F3B35" stroke-width="5" stroke-linecap="round"/><circle cx="200" cy="34" r="7" fill="#F2C94C"/>
+          <path d="M200 104c-50 0-88 38-88 88 0 38 23 62 40 78 9 9 13 18 13 29v6h70v-6c0-11 4-20 13-29 17-16 40-40 40-78 0-50-38-88-88-88z" fill="#F7E7A6"/>
+          <rect x="173" y="305" width="54" height="10" rx="2" fill="#B7BDC2"/><rect x="176" y="317" width="48" height="9" rx="2" fill="#9CA3A8"/><rect x="179" y="328" width="42" height="9" rx="2" fill="#B7BDC2"/><rect x="183" y="339" width="34" height="10" rx="3" fill="#7B8186"/>
+          <circle class="eye" cx="172" cy="195" r="22" fill="#0A1F17"/><circle class="eye" cx="228" cy="195" r="22" fill="#0A1F17"/>
+          <circle id="mpL" cx="172" cy="195" r="9" fill="#F7E7A6"/><circle id="mpR" cx="228" cy="195" r="9" fill="#F7E7A6"/>
+          <path d="M178 238Q200 256 222 238" stroke="#0A1F17" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="152" cy="220" r="10" fill="#F2A7A0" opacity=".6"/><circle cx="248" cy="220" r="10" fill="#F2A7A0" opacity=".6"/>
+        </svg>
+      </div>
+      <h1>Know your bill<br>before it arrives.</h1>
+      <p class="lead">Forecast next month's electricity bill, spot unusual usage, and get tips that actually cut costs.</p>
+    </div>
+    <form class="card lcard" id="loginForm" data-r style="--d:.15s">
+      <span class="eyebrow">⚡ Welcome back</span>
+      <h2>Log in</h2>
+      <label>Email<input type="email" placeholder="you@example.com" autocomplete="email"></label>
+      <label>Password<input type="password" placeholder="••••••••" autocomplete="current-password"></label>
+      <button class="btn" type="submit">Log in →</button>
+      <button class="btn ghost" type="button" data-go="add-bill">Continue as guest</button>
+      <p class="small">New here? <a href="#add-bill" data-go="add-bill">Create an account</a></p>
+    </form>
+  </div>
+  <a class="hint" href="#add-bill">Scroll ↓</a>
+</section>
+
+<!-- 2. ADD BILL -->
+<section class="screen" id="add-bill">
+  <div data-r>
+    <span class="eyebrow">⚡ Step 1</span>
+    <h2>Add your bill data</h2>
+    <p class="lead">Upload a file you already have, type in a reading, or just snap a photo of your bill.</p>
+  </div>
+  <div class="opts">
+    <div class="opt sel" id="o-csv" data-opt="csv" data-r style="--d:.05s">
+      <div class="ib"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M15 2v5h5M8 13h8M8 17h5"/></svg></div>
+      <h3>CSV Upload</h3><p>Already have your bill history in a spreadsheet? Upload it directly.</p><span class="t">✓ Best for bulk history</span>
+    </div>
+    <div class="opt" id="o-manual" data-opt="manual" data-r style="--d:.12s">
+      <div class="ib"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></div>
+      <h3>Manual Entry</h3><p>Type units consumed and bill amount straight from your paper bill.</p><span class="t">✓ No file needed</span>
+    </div>
+    <div class="opt" id="o-ocr" data-opt="ocr" data-r style="--d:.19s">
+      <div class="ib"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg></div>
+      <h3>Bill Photo (OCR)</h3><p>Upload a photo — we read the units, amount and month automatically.</p><span class="t">✓ Fastest, no typing</span>
+    </div>
+  </div>
+  <div class="panel" id="panel" data-r style="--d:.25s"></div>
+  <div class="next"><button class="btn auto" data-go="dashboard">See my dashboard ↓</button></div>
+</section>
+
+<!-- 3. DASHBOARD -->
+<section class="screen" id="dashboard">
+  <div data-r><span class="eyebrow">⚡ Step 2</span><h2>Your energy dashboard</h2></div>
+
+  <div class="card" data-r>
+    <h3>Uploaded bill</h3><div class="sub">The source document behind this month's reading</div>
+    <div class="billrow">
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M15 2v5h5M8 13h8M8 17h5M8 9h3"/></svg></div>
+      <div class="kv"><div><small>Billing month</small><b>Sep 2026</b></div><div><small>Units consumed</small><b>33 units</b></div><div><small>Bill amount</small><b>₹360.00</b></div><div><small>Due date</small><b>05-10-2026</b></div></div>
+      <span class="pill ok">OCR extracted</span>
+    </div>
+  </div>
+
+  <div class="g g-h">
+    <div class="card hero" data-r>
+      <div><div class="sub" style="color:var(--acct);font-weight:600;">NEXT MONTH FORECAST · OCT 2026</div>
+        <div class="big">₹<span id="amt">0</span><small>predicted bill</small></div>
+        <div class="sub" style="margin-top:8px;">≈ <b>38 units</b> · range 34–42 based on your last 12 months</div></div>
+      <div><div class="bar"><i id="rb"></i></div><div class="lab"><span>34 units</span><span>38 (predicted)</span><span>42 units</span></div></div>
+    </div>
+    <div class="minis" data-r style="--d:.12s">
+      <div class="mini"><div><small>This month's usage</small><b>33 units</b></div><span class="pill ok">Normal</span></div>
+      <div class="mini"><div><small>Last flagged anomaly</small><b>Aug 2026</b></div><span class="pill warn">Spike</span></div>
+      <div class="mini"><div><small>Top appliance</small><b>Misc / Other</b></div><span class="pill ok">16.5 u</span></div>
+    </div>
+  </div>
+
+  <div class="g g2">
+    <div class="card chart" data-r>
+      <h3>Consumption trend</h3><div class="sub">Last 12 billing months, with forecast</div>
+      <svg id="chart" viewBox="0 0 600 220" role="img" aria-label="12 month consumption trend with forecast"></svg>
+      <div class="note"><i></i><span>August 2026 (42 units) was well above your usual pattern — likely extra AC use.</span></div>
+    </div>
+    <div class="card" data-r style="--d:.12s">
+      <h3>Appliance breakdown</h3><div class="sub" style="margin-bottom:6px;">Share of latest month's 33 units</div>
+      <div class="ap"><span>Other / Misc</span><div><i data-w="50"></i></div><em>50%</em></div>
+      <div class="ap"><span>Refrigerator</span><div><i data-w="15"></i></div><em>15%</em></div>
+      <div class="ap"><span>Lighting</span><div><i data-w="10"></i></div><em>10%</em></div>
+      <div class="ap"><span>Air Conditioner</span><div><i data-w="10"></i></div><em>10%</em></div>
+      <div class="ap"><span>Washing M.</span><div><i data-w="8"></i></div><em>8%</em></div>
+      <div class="ap"><span>Television</span><div><i data-w="7"></i></div><em>7%</em></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;" data-r>
+    <h3>What-if simulator</h3><div class="sub">Change one appliance's usage and see next month's bill update</div>
+    <div class="sim">
+      <select id="sapp"><option value=".10">Air Conditioner</option><option value=".15">Refrigerator</option><option value=".10">Lighting</option><option value=".08">Washing Machine</option></select>
+      <div class="sl"><input type="range" id="sp" min="-50" max="50" value="-20" aria-label="Usage change percent"><div><span>-50%</span><span id="spl">-20% usage</span><span>+50%</span></div></div>
+    </div>
+    <div class="res"><div><small>Simulated bill</small><b id="sa">₹412</b></div><div class="sv"><small>Estimated savings</small><b id="ss">₹0 / month</b></div></div>
+  </div>
+
+  <div class="card" style="margin-top:16px;" data-r>
+    <h3>Personalized recommendations</h3><div class="sub">Based on your appliance mix and recent usage</div>
+    <div class="recs">
+      <div class="rec"><b>Other / Misc</b>Unplug chargers and small appliances when idle — standby load is your biggest category at 50%.</div>
+      <div class="rec"><b>Anomaly follow-up</b>Check whether an appliance ran longer than usual in August, when usage jumped.</div>
+      <div class="rec"><b>General</b>Shift heavy appliance use to off-peak hours if your tariff has time-of-day pricing.</div>
+    </div>
+  </div>
+  <div class="foot">Smart Energy Advisor — final-year Data Science field project · demo data shown</div>
+</section>
+</main>
+
+<!-- Guided tour -->
+<div class="dim" id="dim" aria-hidden="true"></div>
+<div class="ring" id="ring" aria-hidden="true"></div>
+<div class="tip" id="tip" role="dialog" aria-label="Watt's guided tour">
+  <div class="th"><svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#F7E7A6"/><circle class="eye" cx="38" cy="46" r="7" fill="#0A1F17"/><circle class="eye" cx="62" cy="46" r="7" fill="#0A1F17"/><path d="M40 62Q50 71 60 62" stroke="#0A1F17" stroke-width="3" stroke-linecap="round"/><circle cx="31" cy="58" r="4" fill="#F2A7A0" opacity=".6"/><circle cx="69" cy="58" r="4" fill="#F2A7A0" opacity=".6"/></svg><b>Watt</b><small id="tcount"></small></div>
+  <h4 id="tt"></h4><p id="tp" aria-live="polite"></p>
+  <div class="ta" id="ta"></div>
+</div>
+<div class="resume" id="resume"><span>Tour paused</span><button class="btn" id="rgo" type="button">Continue tour →</button><button id="rx" type="button" aria-label="End tour">✕</button></div>
+
+<!-- Watt chatbot -->
+<button class="fab" id="fab" aria-label="Chat with Watt">
+  <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" fill="#F7E7A6"/><circle class="eye" cx="38" cy="46" r="7" fill="#0A1F17"/><circle class="eye" cx="62" cy="46" r="7" fill="#0A1F17"/><circle id="fpL" cx="38" cy="46" r="2.8" fill="#F7E7A6"/><circle id="fpR" cx="62" cy="46" r="2.8" fill="#F7E7A6"/><path d="M40 62Q50 71 60 62" stroke="#0A1F17" stroke-width="3" stroke-linecap="round"/><circle cx="31" cy="58" r="4" fill="#F2A7A0" opacity=".6"/><circle cx="69" cy="58" r="4" fill="#F2A7A0" opacity=".6"/></svg>
+</button>
+<div class="chat" id="chat" role="dialog" aria-label="Watt assistant">
+  <div class="ch">
+    <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" fill="#F7E7A6"/><circle cx="38" cy="46" r="7" fill="#0A1F17"/><circle cx="62" cy="46" r="7" fill="#0A1F17"/><path d="M40 62Q50 71 60 62" stroke="#0A1F17" stroke-width="3" stroke-linecap="round"/></svg>
+    <div><b>Watt</b><small id="ctx">● Looking at: Login</small></div><button class="rt" id="retour" type="button">↻ Tour</button><button class="x" id="cx" type="button" aria-label="Close chat">×</button>
+  </div>
+  <div class="msgs" id="msgs" aria-live="polite"></div>
+  <div class="chips" id="chips"></div>
+  <form class="inp" id="cform"><input id="cin" type="text" placeholder="Ask Watt anything…" autocomplete="off" aria-label="Type your question"><button type="submit" aria-label="Send"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let cur='login', introPhase=true;
+const go=id=>document.getElementById(id).scrollIntoView({behavior:'smooth'});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-go]'); if(t){e.preventDefault(); go(t.dataset.go);}});
+$('#loginForm').addEventListener('submit',e=>{e.preventDefault(); go('add-bill');});
+
+/* reveal + section tracking */
+const rio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in'); rio.unobserve(e.target);}}),{threshold:.12});
+$$('[data-r]').forEach(el=>rio.observe(el));
+const NAMES={login:'Login','add-bill':'Add Bill',dashboard:'Dashboard'};
+const sio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){cur=e.target.id;
+  $$('#nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));
+  $('#ctx').textContent='● Looking at: '+NAMES[cur]; if(!introPhase) renderChips(); if(cur==='dashboard') runDash();}}),{threshold:.5});
+$$('.screen').forEach(s=>sio.observe(s));
+
+/* cursor-follow eyes */
+const sets=[{svg:$('#mascot'),w:400,h:420,max:7,div:8,p:[[$('#mpL'),172,195],[$('#mpR'),228,195]]},
+            {svg:$('#fab svg'),w:100,h:100,max:2.4,div:14,p:[[$('#fpL'),38,46],[$('#fpR'),62,46]]}];
+addEventListener('pointermove',e=>sets.forEach(s=>{const r=s.svg.getBoundingClientRect(); const x=(e.clientX-r.left)*s.w/r.width, y=(e.clientY-r.top)*s.h/r.height;
+  s.p.forEach(([el,cx,cy])=>{const dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy)||1,o=Math.min(s.max,d/s.div); el.setAttribute('cx',cx+dx/d*o); el.setAttribute('cy',cy+dy/d*o);});}),{passive:true});
+
+/* mascot shuts its eyes while typing the password */
+const pw=$('#loginForm input[type=password]');
+pw.addEventListener('focus',()=>$('#mascot').classList.add('shut'));
+pw.addEventListener('blur',()=>$('#mascot').classList.remove('shut'));
+
+/* add-bill panels */
+const PAN={
+ csv:`<h4>Upload bill history CSV</h4><div class="s">Needs: billing_month, units_consumed, bill_amount (appliance columns optional)</div><div class="drop"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg><div style="margin-top:8px"><b>Drag &amp; drop your CSV here</b>, or click to browse</div></div>`,
+ manual:`<h4>Enter this month's reading</h4><div class="s">Add one bill at a time from your paper bill</div><div class="row"><div class="f"><label>Billing month</label><input placeholder="2026-09"></div><div class="f"><label>Units consumed (kWh)</label><input placeholder="33"></div><div class="f"><label>Bill amount (₹)</label><input placeholder="360"></div></div>`,
+ ocr:`<h4>Upload a photo of your bill</h4><div class="s">You can review and correct what we read before it's saved</div><div class="pbox"><div class="pb"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg></div><div class="sub" style="max-width:400px">Take a clear photo of the front of your bill. We'll read the <b>billing month</b>, <b>units consumed</b> and <b>bill amount</b>.</div></div>`};
+function pick(k){$$('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.opt===k)); $('#panel').innerHTML=PAN[k];}
+$$('.opt').forEach(o=>o.addEventListener('click',()=>pick(o.dataset.opt))); pick('csv');
+
+/* dashboard animations */
+let ran=false;
+function tween(el,a,b,f,ms=900){const t0=performance.now(); (function s(n){const p=Math.min(1,(n-t0)/ms),k=1-Math.pow(1-p,3); el.textContent=f(a+(b-a)*k); if(p<1)requestAnimationFrame(s);})(t0);}
+function buildChart(){
+  const D=[27,26,19,19,22,36,50,44,39,31,42,33,38], M=['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct*'];
+  const W=600,H=220,P=30,x=i=>P+i*(W-2*P)/12,y=v=>H-34-(v/55)*(H-64);
+  const p=D.map((v,i)=>[x(i),y(v)]); let d=`M${p[0][0]},${p[0][1]}`;
+  for(let i=1;i<=11;i++){const mx=(p[i-1][0]+p[i][0])/2,my=(p[i-1][1]+p[i][1])/2; d+=` Q${p[i-1][0]},${p[i-1][1]} ${mx},${my}`;} d+=` L${p[11][0]},${p[11][1]}`;
+  let g=''; [0,25,50].forEach(v=>g+=`<line class="gl" x1="${P}" x2="${W-P}" y1="${y(v)}" y2="${y(v)}"/><text class="tx" x="2" y="${y(v)+4}">${v}</text>`);
+  let t=''; M.forEach((m,i)=>t+=`<text class="tx" x="${x(i)}" y="${H-8}" text-anchor="middle">${m}</text>`);
+  $('#chart').innerHTML=g+`<path class="ar" d="${d} L${p[11][0]},${y(0)} L${p[0][0]},${y(0)}Z"/><path class="ln" id="lp" d="${d}"/><path class="fc" d="M${p[11][0]},${p[11][1]} L${p[12][0]},${p[12][1]}"/><circle cx="${p[12][0]}" cy="${p[12][1]}" r="6" fill="var(--acc)"/><circle cx="${p[10][0]}" cy="${p[10][1]}" r="7" fill="var(--warn)"/>`+t;
+  const lp=$('#lp'),L=lp.getTotalLength(); lp.style.strokeDasharray=L; lp.style.strokeDashoffset=L; lp.getBoundingClientRect(); lp.style.transition='stroke-dashoffset 1.5s ease'; lp.style.strokeDashoffset=0;
+}
+function runDash(){ if(ran) return; ran=true;
+  tween($('#amt'),0,412,v=>Math.round(v),1200); setTimeout(()=>$('#rb').style.width='28%',250);
+  $$('.ap i').forEach(i=>setTimeout(()=>i.style.width=i.dataset.w+'%',300)); buildChart(); upSim(true);}
+let sa=412,ss=0;
+function upSim(first){const sh=+$('#sapp').value,pc=+$('#sp').value; $('#spl').textContent=(pc>0?'+':'')+pc+'% usage';
+  const nu=Math.max(0,38+38*sh*pc/100), na=Math.round(nu*10.8), sv=412-na;
+  tween($('#sa'),sa,na,v=>'₹'+Math.round(v),350); tween($('#ss'),ss,sv,v=>(v>=0?'₹'+Math.round(v):'-₹'+Math.abs(Math.round(v)))+' / month',350); sa=na; ss=sv;}
+$('#sapp').addEventListener('change',()=>upSim()); $('#sp').addEventListener('input',()=>upSim());
+
+/* Watt chatbot */
+const PAGE={login:"This is the login page. Log in (or continue as a guest) to get started — your bills and forecasts stay tied to your account. After that you'll move on to “Add Bill”, where you bring in your usage data.",
+ 'add-bill':"This page is where you give me your electricity data. Pick one of three ways: CSV Upload for a spreadsheet of past bills, Manual Entry for a single bill, or Bill Photo (OCR) to read a photo of your bill. When you're done, scroll down to see your dashboard.",
+ dashboard:"This dashboard turns your bill into insight. At the top is the bill you uploaded, then your ₹412 forecast for next month, a 12-month trend with August's spike flagged, an appliance-wise breakdown, a what-if simulator to test savings, and personalized tips at the bottom."};
+const KB=[
+ [['show me the dashboard','take me to the dashboard','go to dashboard'],()=>{setTimeout(()=>go('dashboard'),500); return "Sure — taking you to the dashboard now. ⬇️";}],
+ [['smart energy advisor','what is smart'],"Smart Energy Advisor forecasts your next electricity bill, flags unusual usage, shows which appliances use the most and gives personalised saving tips — all from your own bill history."],
+ [['what can you do','capabilit'],"I can explain any part of this page, tell you how the forecast, anomaly flag and simulator work, and guide you through adding your bill. Just ask — or tap an option."],
+ [['get started','how do i start','begin'],"Easy: log in (or continue as a guest), add your bill by CSV, manual entry or a photo, then scroll to your dashboard to see your forecast and tips."],
+ [['what can i do','what is this','overview'],()=>PAGE[cur]],
+ [['safe','privacy','secure'],"In this demo nothing leaves your browser — the numbers on screen are sample data. In the full app your bills would be stored only against your own account."],
+ [['account','sign','guest','password','login','log in'],"You can log in to keep your bills and forecasts saved, or just tap “Continue as guest” to try everything without an account."],
+ [['which option','pick','choose','best way'],"Got a spreadsheet of past bills? Use CSV Upload. Just one bill in hand? Manual Entry is quickest. Have a photo? OCR reads it for you — no typing."],
+ [['csv','spreadsheet','column','excel'],"Your CSV needs billing_month, units_consumed and bill_amount. Add appliance columns (ac_units, fridge_units…) to unlock the appliance breakdown and the what-if simulator."],
+ [['ocr','photo','misread','scan','image'],"OCR reads the billing month, units and amount from your photo. If it gets something wrong, you can correct it before saving — nothing is stored blindly."],
+ [['manual','type'],"Manual Entry takes three things from your paper bill: the billing month, units consumed and bill amount. Add one month at a time."],
+ [['forecast','predict','412','next month'],"The ₹412 forecast (≈38 units) comes from a seasonal regression model on your last 12 months — it captures the overall trend plus summer AC spikes. The range bar shows the likely 34–42 unit window."],
+ [['anomal','spike','unusual','august','flag'],"August 2026 (42 units) sat well above your usual pattern, so it's flagged as an anomaly. It's worth checking whether an appliance ran longer than normal that month."],
+ [['simulat','what-if','what if','slider'],"Pick an appliance, drag the slider to use it more or less, and the simulated bill and savings update instantly — e.g. cutting AC use by 20% changes next month's estimate."],
+ [['appliance','breakdown','fridge','share'],"The breakdown shows each appliance's share of your latest month. “Other / Misc” is biggest at 50% — often standby loads like chargers and idle devices."],
+ [['recommend','tip','save','reduce','lower'],"The tips come from your own appliance mix and anomalies — for you that means tackling standby load first, then checking August's spike."],
+ [['who','made','project','built'],"Smart Energy Advisor is a final-year Data Science field project by Sakshi Shelke — forecasting, anomaly detection, OCR and recommendations in one place."],
+ [['hi','hello','hey','thanks','thank'],"Hi! I'm Watt ⚡ — ask me about anything on this page, or tap “Explain this page”."]];
+const CHIPS={login:["What can I do here?","Do I need an account?","Is my data safe?"],
+ 'add-bill':["Which option should I pick?","What does my CSV need?","What if OCR misreads?"],
+ dashboard:["How is the forecast made?","What's the anomaly flag?","How do I use the simulator?"]};
+function answer(q){const n=q.toLowerCase();
+  if(/explain|describe|this page|this dashboard|walk me/.test(n)) return PAGE[cur];
+  for(const [ks,a] of KB) if(ks.some(k=>k.length<=3?new RegExp('\\b'+k+'\\b').test(n):n.includes(k))) return typeof a==='function'?a():a;
+  return "I'm not sure about that one yet. Try asking about the forecast, anomalies, the simulator, CSV or photo upload — or tap “Explain this page”.";}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const DOTS='<span class="dots"><span></span><span></span><span></span></span>';
+function say(t,who){const m=document.createElement('div'); m.className='m '+who; m.textContent=t; $('#msgs').appendChild(m); $('#msgs').scrollTop=1e5; return m;}
+function ask(q){ if(!q.trim()) return; say(q,'me'); const d=say('','bot'); d.innerHTML=DOTS;
+  setTimeout(()=>{d.textContent=answer(q); $('#msgs').scrollTop=1e5;},650);}
+async function botSay(t){const d=say('','bot'); d.innerHTML=DOTS; await sleep(850); d.textContent=t; $('#msgs').scrollTop=1e5; await sleep(380);}
+function renderChips(list){const c=$('#chips'); c.innerHTML=''; const L=list||CHIPS[cur];
+  L.forEach((q,i)=>{const b=document.createElement('button'); b.className='chip'; b.type='button'; b.textContent=q; b.style.setProperty('--d',i*.08+'s'); b.onclick=()=>ask(q); c.appendChild(b);});
+  const e=document.createElement('button'); e.className='chip ex'; e.type='button'; e.textContent=cur==='dashboard'?'Explain this dashboard':'Explain this page'; e.style.setProperty('--d',L.length*.08+'s'); e.onclick=()=>ask(e.textContent); c.appendChild(e);}
+const INTRO_CHIPS=["What is Smart Energy Advisor?","What can you do?","How do I get started?","Is my data safe?","Show me the dashboard"];
+let introStarted=false;
+async function intro(){ if(introStarted) return; introStarted=true;
+  await botSay("Hi, welcome! I'm Watt ⚡ — your guide to Smart Energy Advisor.");
+  await botSay("I can help you forecast next month's bill, spot unusual usage and find simple ways to save.");
+  await botSay("Tap an option below, or just type your question.");
+  renderChips(INTRO_CHIPS); introPhase=false;}
+function setOpen(o,focus){$('#chat').classList.toggle('open',o); $('#fab').classList.add('seen'); if(o&&focus) setTimeout(()=>$('#cin').focus({preventScroll:true}),350);}
+$('#fab').addEventListener('click',()=>{const o=!$('#chat').classList.contains('open'); setOpen(o,true); if(o) intro();});
+$('#cx').addEventListener('click',()=>setOpen(false));
+$('#cform').addEventListener('submit',e=>{e.preventDefault(); const v=$('#cin').value; $('#cin').value=''; ask(v);});
+/* guided tour: Watt's floating coach marks, the rest of the screen stays blurred */
+const TOUR=[
+ {tgt:'#fab',t:"Hi, I'm Watt ⚡",p:"I'm your guide to Smart Energy Advisor. Let me show you around in under a minute.",b:['got']},
+ {tgt:'#loginForm',t:"Log in",p:"Log in to keep your bills saved, or just continue as a guest.",b:['got','try'],act:()=>$('#loginForm input').focus({preventScroll:true})},
+ {tgt:'#o-csv',t:"CSV Upload",p:"Got a spreadsheet of past bills? Upload it here. Best when you have several months.",b:['got','try'],act:()=>pick('csv')},
+ {tgt:'#o-manual',t:"Manual Entry",p:"Just one paper bill? Type the month, units and amount. It takes seconds.",b:['got','try'],act:()=>{pick('manual'); setTimeout(()=>{const i=$('#panel input'); if(i) i.focus({preventScroll:true});},60);}},
+ {tgt:'#o-ocr',t:"Bill Photo (OCR)",p:"Snap a photo of your bill and I'll read the details. You can correct anything before saving.",b:['got','try'],act:()=>pick('ocr')},
+ {tgt:'#dashboard .hero',t:"Your forecast",p:"Next month's predicted bill and its likely range, built from your last 12 months.",b:['got']},
+ {tgt:()=>$('#sapp').closest('.card'),t:"What-if simulator",p:"Pick an appliance, drag the slider and watch your bill and savings change instantly.",b:['got','try'],act:()=>$('#sp').focus({preventScroll:true})},
+ {tgt:'#fab',t:"You're all set 🎉",p:"I'm always here. Tap me, type any question, or hit “Explain this page”.",b:['done']}];
+const dim=$('#dim'), ring=$('#ring'), tip=$('#tip'), root=document.documentElement;
+let ti=0,tok=0,spotEl=null,curEl=null;
+const lockUI=on=>{root.classList.toggle('lock',on); $$('main,header.top,#fab,#chat').forEach(e=>e.inert=on);};
+const clearSpot=()=>{if(spotEl){spotEl.classList.remove('spot'); spotEl=null;}};
+const elOf=s=>typeof s.tgt==='function'?s.tgt():$(s.tgt);
+const radOf=(el,r)=>{const v=getComputedStyle(el).borderTopLeftRadius; return v.includes('%')?parseFloat(v)/100*Math.min(r.width,r.height):(parseFloat(v)||0);};
+function holePath(r,p,q0){const W=root.clientWidth,H=innerHeight,x=r.left-p,y=r.top-p,w=r.width+2*p,h=r.height+2*p,q=Math.min(q0,w/2,h/2);
+  return `path(evenodd,"M0 0H${W}V${H}H0Z M${x+q} ${y}H${x+w-q}A${q} ${q} 0 0 1 ${x+w} ${y+q}V${y+h-q}A${q} ${q} 0 0 1 ${x+w-q} ${y+h}H${x+q}A${q} ${q} 0 0 1 ${x} ${y+h-q}V${y+q}A${q} ${q} 0 0 1 ${x+q} ${y}Z")`;}
+async function settle(el){let same=0,lt=NaN,ll=NaN; for(let i=0;i<40&&same<3;i++){await sleep(70); const r=el.getBoundingClientRect(); same=(Math.abs(r.top-lt)<.5&&Math.abs(r.left-ll)<.5)?same+1:0; lt=r.top; ll=r.left;}}
+function mk(label,cls,fn){const b=document.createElement('button'); b.type='button'; b.className='btn '+cls; b.textContent=label; b.onclick=fn; return b;}
+function place(r){
+  const W=root.clientWidth,H=innerHeight,m=12,g=16,tw=tip.offsetWidth,th=tip.offsetHeight; let side,x,y;
+  if(H-r.bottom-g-m>=th) side='b'; else if(r.top-g-m>=th) side='t'; else if(W-r.right-g-m>=tw) side='r'; else if(r.left-g-m>=tw) side='l'; else side='n';
+  if(side==='b'||side==='t'){x=Math.min(Math.max(m,r.left+r.width/2-tw/2),W-tw-m); y=side==='b'?r.bottom+g:r.top-g-th; tip.style.setProperty('--ax',Math.min(Math.max(22,r.left+r.width/2-x),tw-22)+'px');}
+  else if(side==='r'||side==='l'){y=Math.min(Math.max(m,r.top+r.height/2-th/2),H-th-m); x=side==='r'?r.right+g:r.left-g-tw; tip.style.setProperty('--ay',Math.min(Math.max(22,r.top+r.height/2-y),th-22)+'px');}
+  else {x=Math.max(m,(W-tw)/2); y=(r.top+r.height/2>H/2)?72:H-th-m-76;}
+  tip.style.left=x+'px'; tip.style.top=y+'px'; tip.classList.add(side);
+}
+function layout(){
+  const s=TOUR[ti], r=curEl.getBoundingClientRect(), p=8, rad=radOf(curEl,r)+p;
+  dim.style.clipPath=holePath(r,p,rad);
+  Object.assign(ring.style,{left:r.left-p+'px',top:r.top-p+'px',width:r.width+2*p+'px',height:r.height+2*p+'px',borderRadius:rad+'px'}); ring.classList.add('on');
+  $('#tt').textContent=s.t; $('#tp').textContent=s.p; $('#tcount').textContent=(ti+1)+' / '+TOUR.length;
+  const ta=$('#ta'); ta.innerHTML='';
+  s.b.forEach(k=>{if(k==='got') ta.appendChild(mk('Got it','',nextStep)); if(k==='try') ta.appendChild(mk('Try it','try',tryIt)); if(k==='done') ta.appendChild(mk('Start exploring','try',endTour));});
+  if(!s.b.includes('done')){const k=document.createElement('button'); k.type='button'; k.className='skip'; k.textContent='Skip tour'; k.onclick=endTour; ta.appendChild(k);}
+  tip.classList.remove('b','t','l','r','n'); place(r); tip.classList.add('on'); ta.firstChild.focus({preventScroll:true});
+}
+async function showStep(i){
+  const my=++tok; ti=i; curEl=elOf(TOUR[i]);
+  tip.classList.remove('on'); ring.classList.remove('on'); dim.style.clipPath='none';
+  if(getComputedStyle(curEl).position!=='fixed') curEl.scrollIntoView({behavior:'smooth',block:'center'});
+  await sleep(120); await settle(curEl); if(my!==tok) return;
+  layout();
+}
+const nextStep=()=>{ if(ti<TOUR.length-1) showStep(ti+1); else endTour(); };
+function hideTour(){dim.classList.remove('on'); tip.classList.remove('on'); ring.classList.remove('on'); lockUI(false);}
+function tryIt(){const s=TOUR[ti]; tok++; hideTour(); clearSpot(); if(s.act) s.act(); spotEl=curEl; spotEl.classList.add('spot'); $('#resume').classList.add('on'); setTimeout(clearSpot,7000);}
+function resumeTour(){$('#resume').classList.remove('on'); clearSpot(); dim.classList.add('on'); lockUI(true); showStep(Math.min(ti+1,TOUR.length-1));}
+function endTour(){tok++; hideTour(); $('#resume').classList.remove('on'); clearSpot(); $('#fab').classList.remove('hold'); go('login');}
+function startTour(){setOpen(false); window.scrollTo({top:0,behavior:'instant'}); $('#fab').classList.add('hold'); dim.classList.add('on'); lockUI(true); showStep(0);}
+$('#rgo').onclick=resumeTour; $('#rx').onclick=endTour; $('#retour').onclick=startTour;
+addEventListener('resize',()=>{if(tip.classList.contains('on')) layout();});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&dim.classList.contains('on')) endTour();});
+addEventListener('load',()=>setTimeout(startTour,500));
+</script>
+</body>
+</html>
