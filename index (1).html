@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smart Energy Advisor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAF5EF; --panel:#FFFFFF; --panel2:#F3FAF6; --ink:#0A1F17; --sub:#4F665B; --line:rgba(10,31,23,.1);
+  --acc:#49E09B; --accd:#DDF5E8; --acct:#1C8F5E; --warn:#D9A82B; --warnd:#FBF1D6; --glow:.55;
+  --head:'Epilogue',system-ui,sans-serif; --body:'DM Sans',system-ui,sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#07130F; --panel:#0F1F19; --panel2:#0B1813; --ink:#E8F4EE; --sub:#93AB9F; --line:rgba(255,255,255,.11); --accd:#12392A; --acct:#49E09B; --warnd:#3D3212; --glow:.28;}
+}
+:root[data-theme="dark"]{--bg:#07130F; --panel:#0F1F19; --panel2:#0B1813; --ink:#E8F4EE; --sub:#93AB9F; --line:rgba(255,255,255,.11); --accd:#12392A; --acct:#49E09B; --warnd:#3D3212; --glow:.28;}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-snap-type:y proximity; scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0; background:var(--bg); color:var(--ink); font:400 16px/1.55 var(--body);}
+
+/* animated background */
+.bg{position:fixed; inset:0; z-index:-2; overflow:hidden; background:var(--bg);}
+.blob{position:absolute; filter:blur(70px); opacity:var(--glow); background:radial-gradient(circle at 30% 30%,var(--c1),var(--c2) 70%);}
+.b1{--c1:#6EEBAE; --c2:#49E09B; width:50vw; height:50vw; left:-14vw; top:-16vw; animation:m1 14s ease-in-out infinite,d1 22s ease-in-out infinite;}
+.b2{--c1:#C7F2D9; --c2:#8FE0B8; width:38vw; height:38vw; right:-10vw; top:4vw; animation:m2 17s ease-in-out infinite,d2 26s ease-in-out infinite;}
+.b3{--c1:#F7EFB0; --c2:#F2DD8A; width:42vw; height:42vw; left:18vw; bottom:-20vw; animation:m1 19s ease-in-out infinite reverse,d3 24s ease-in-out infinite;}
+@keyframes m1{0%,100%{border-radius:42% 58% 63% 37%/41% 44% 56% 59%;}50%{border-radius:63% 37% 41% 59%/58% 46% 54% 42%;}}
+@keyframes m2{0%,100%{border-radius:58% 42% 36% 64%/55% 48% 52% 45%;}50%{border-radius:39% 61% 61% 39%/44% 60% 40% 56%;}}
+@keyframes d1{50%{transform:translate(4vw,6vw) scale(1.08);}}
+@keyframes d2{50%{transform:translate(-5vw,4vw) scale(1.1);}}
+@keyframes d3{50%{transform:translate(3vw,-5vw) scale(1.06);}}
+
+/* top bar */
+.top{position:fixed; top:0; left:0; right:0; z-index:40; display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:space-between; align-items:center;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 28px 12px; background:color-mix(in srgb,var(--bg) 72%,transparent); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);}
+.brand{display:flex; align-items:center; gap:10px; font:900 20px var(--head); color:var(--ink); text-decoration:none;}
+.brand svg{width:26px; height:26px;}
+nav{display:flex; gap:6px;}
+nav a{padding:8px 16px; border-radius:22px; font-weight:600; font-size:15px; color:var(--sub); text-decoration:none; transition:background .2s,color .2s;}
+nav a.on{background:var(--accd); color:var(--acct);}
+
+.screen{min-height:100vh; scroll-snap-align:start; max-width:1160px; margin:0 auto; padding:104px 28px 64px; position:relative;}
+[data-r]{opacity:0; transform:translateY(24px); transition:opacity .7s var(--e,ease),transform .7s ease; transition-delay:var(--d,0s);}
+[data-r].in{opacity:1; transform:none;}
+.eyebrow{display:inline-block; background:var(--accd); color:var(--acct); font-weight:600; font-size:14px; padding:6px 14px; border-radius:20px;}
+h1,h2,h3,h4{font-family:var(--head); margin:0;}
+h1{font-weight:900; letter-spacing:-.02em; line-height:1.08; font-size:clamp(34px,5vw,56px);}
+h2{font-weight:900; font-size:clamp(28px,3.6vw,38px); letter-spacing:-.01em; margin:14px 0 8px;}
+.lead{font-size:18px; color:var(--sub); max-width:520px; margin:14px 0 0;}
+.card{background:var(--panel); border:1.5px solid var(--line); border-radius:22px; padding:26px;}
+.btn{display:inline-flex; justify-content:center; align-items:center; gap:8px; width:100%; background:var(--ink); color:var(--bg); border:0; border-radius:14px; padding:14px 22px; font:600 16px var(--body); cursor:pointer; transition:transform .15s;}
+.btn:hover{transform:translateY(-2px);}
+.btn.ghost{background:transparent; color:var(--ink); border:1.5px solid var(--line); margin-top:10px;}
+.btn.auto{width:auto;}
+.pill{font-size:12.5px; padding:4px 11px; border-radius:20px; font-weight:600; white-space:nowrap;}
+.pill.ok{background:var(--accd); color:var(--acct);} .pill.warn{background:var(--warnd); color:var(--warn);}
+
+/* login */
+.login{display:grid; grid-template-columns:1.1fr 1fr; gap:48px; align-items:center; min-height:calc(100vh - 190px);}
+.mwrap{width:min(300px,70vw); margin-bottom:22px;}
+.mascot{width:100%; height:auto; display:block;}
+.mbg{fill:var(--accd);}
+.lcard label{display:block; font-weight:600; font-size:14.5px; color:var(--sub); margin-top:16px;}
+.lcard input{display:block; width:100%; margin-top:6px; padding:13px 14px; border:1.5px solid var(--line); border-radius:12px; background:var(--panel2); color:var(--ink); font:400 16px var(--body);}
+.lcard input:focus{outline:2px solid var(--acc); border-color:transparent;}
+.lcard .btn{margin-top:22px;} .lcard .btn.ghost{margin-top:10px;}
+.small{font-size:14.5px; color:var(--sub); text-align:center; margin:16px 0 0;} .small a{color:var(--acct); font-weight:600;}
+.hint{position:absolute; left:50%; bottom:22px; transform:translateX(-50%); color:var(--sub); font-weight:600; font-size:14px; text-decoration:none; animation:bob 1.8s ease-in-out infinite;}
+@keyframes bob{50%{transform:translate(-50%,6px);}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1);}96%{transform:scaleY(.1);}}
+.eye{animation:blink 4.5s infinite; transform-box:fill-box; transform-origin:center; transition:transform .18s ease;}
+#mpL,#mpR{transition:opacity .15s;}
+#mascot.shut .eye{animation:none; transform:scaleY(.09);}
+#mascot.shut #mpL,#mascot.shut #mpR{opacity:0;}
+
+/* add bill */
+.opts{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:28px;}
+.opt{background:var(--panel); border:1.5px solid var(--line); border-radius:22px; padding:26px 22px; cursor:pointer; display:flex; flex-direction:column; gap:12px; transition:transform .2s,border-color .2s,background .2s;}
+.opt:hover{transform:translateY(-4px); border-color:var(--acc);}
+.opt.sel{border-color:var(--acc); background:var(--accd);}
+.ib{width:52px; height:52px; border-radius:15px; background:var(--accd); color:var(--acct); display:flex; align-items:center; justify-content:center;}
+.opt.sel .ib{background:var(--panel);}
+.opt h3{font-size:19px;} .opt p{margin:0; color:var(--sub); font-size:15px; flex:1;} .opt .t{font-size:13px; font-weight:600; color:var(--acct);}
+.panel{margin-top:22px; background:var(--panel); border:1.5px solid var(--line); border-radius:22px; padding:28px;}
+.panel h4{font-size:19px; margin-bottom:4px;} .panel .s{color:var(--sub); font-size:15px; margin-bottom:18px;}
+.drop{border:2px dashed var(--line); border-radius:16px; padding:34px 18px; text-align:center; color:var(--sub); background:var(--panel2);}
+.drop b{color:var(--ink);}
+.row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+.f{flex:1; min-width:170px;} .f label{display:block; font-size:14px; font-weight:600; color:var(--sub); margin-bottom:6px;}
+.f input{width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; background:var(--panel2); color:var(--ink); font:400 16px var(--body);}
+.pbox{display:flex; gap:18px; align-items:center; flex-wrap:wrap;}
+.pb{width:110px; height:110px; border-radius:16px; border:2px dashed var(--line); display:flex; align-items:center; justify-content:center; color:var(--sub); background:var(--panel2);}
+.next{margin-top:22px; display:flex; justify-content:flex-end;}
+
+/* dashboard */
+.sub{color:var(--sub); font-size:15px;}
+.g{display:grid; gap:16px; margin-top:16px;}
+.g2{grid-template-columns:1.4fr 1fr;} .g-h{grid-template-columns:1.3fr 1fr;}
+.billrow{display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-top:14px;}
+.billrow .ic{width:58px; height:58px; border-radius:14px; background:var(--accd); color:var(--acct); display:flex; align-items:center; justify-content:center;}
+.kv{display:flex; gap:28px; flex-wrap:wrap; flex:1;} .kv small{display:block; color:var(--sub); font-size:13px;} .kv b{font:700 18px var(--head);}
+.hero{display:flex; flex-direction:column; justify-content:space-between; gap:16px; background:linear-gradient(160deg,var(--panel),var(--accd));}
+.big{font:900 58px/1 var(--head); letter-spacing:-.02em; margin-top:8px;} .big small{font:500 18px var(--body); color:var(--sub); margin-left:8px;}
+.bar{height:8px; border-radius:5px; background:var(--accd); overflow:hidden; position:relative;} .bar i{position:absolute; top:0; bottom:0; left:36%; width:0; background:var(--acc); border-radius:5px; transition:width 1.1s cubic-bezier(.2,.7,.2,1);}
+.lab{display:flex; justify-content:space-between; font-size:13px; color:var(--sub); margin-top:6px;}
+.minis{display:flex; flex-direction:column; gap:12px;}
+.mini{background:var(--panel); border:1.5px solid var(--line); border-radius:18px; padding:16px 18px; display:flex; justify-content:space-between; align-items:center;}
+.mini small{display:block; color:var(--sub); font-size:13.5px;} .mini b{font:700 20px var(--head);}
+.chart svg{width:100%; height:auto; display:block;}
+.ln{fill:none; stroke:var(--acc); stroke-width:3.2; stroke-linecap:round;} .fc{fill:none; stroke:var(--acc); stroke-width:3; stroke-dasharray:6 6;}
+.ar{fill:var(--acc); opacity:.12;} .gl{stroke:var(--line);} .tx{fill:var(--sub); font:12px var(--body);}
+.note{margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--warnd); font-size:14.5px; display:flex; gap:10px;}
+.note i{width:8px; height:8px; border-radius:50%; background:var(--warn); margin-top:8px; flex-shrink:0;}
+.ap{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;} .ap:last-child{border:0;}
+.ap span:first-child{width:118px; flex-shrink:0;} .ap em{font-style:normal; width:40px; text-align:right; color:var(--sub); font-size:14px;}
+.ap div{flex:1; height:8px; background:var(--accd); border-radius:5px; overflow:hidden;} .ap div i{display:block; height:100%; width:0; background:var(--acc); border-radius:5px; transition:width 1.1s cubic-bezier(.2,.7,.2,1);}
+.sim{display:flex; gap:18px; align-items:center; flex-wrap:wrap; margin-top:12px;}
+select{background:var(--panel2); color:var(--ink); border:1.5px solid var(--line); border-radius:12px; padding:11px 14px; font:400 16px var(--body);}
+.sl{flex:1; min-width:200px;} input[type=range]{width:100%; accent-color:var(--acc);}
+.sl div{display:flex; justify-content:space-between; font-size:13px; color:var(--sub);}
+.res{display:flex; gap:34px; margin-top:18px; flex-wrap:wrap;} .res small{display:block; color:var(--sub); font-size:14px;} .res b{font:900 28px var(--head);} .res .sv b{color:var(--acct);}
+.recs{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
+.rec{padding:14px 16px; border-radius:14px; background:var(--panel2); border:1px solid var(--line); font-size:15.5px;} .rec b{display:block; color:var(--acct); font-size:14px; margin-bottom:2px;}
+.foot{margin-top:26px; text-align:center; color:var(--sub); font-size:14px;}
+
+/* Watt chatbot */
+[hidden]{display:none !important;}
+:root{--bad:#C0392B;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bad:#FF8A7A;}}
+:root[data-theme="dark"]{--bad:#FF8A7A;}
+.auth{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:var(--sub);}
+.auth b{color:var(--ink);} .auth button{background:none; border:1.5px solid var(--line); color:var(--ink); border-radius:18px; padding:5px 12px; font:600 13.5px var(--body); cursor:pointer;}
+.top nav{margin-left:auto;} @media (max-width:860px){.top nav{margin-left:0;}}
+.err{color:var(--bad); font-size:14.5px; min-height:22px; margin:10px 0 0;}
+.ok-msg{color:var(--acct); font-weight:600; font-size:15px; min-height:22px; margin:10px 0 0;}
+.drop{display:block; cursor:pointer; transition:border-color .2s,background .2s;} .drop.over,.drop:hover,.drop:focus-visible{border-color:var(--acc); background:var(--accd); outline:none;}
+.photo{display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start;} .photo img{width:150px; max-height:210px; object-fit:cover; border-radius:14px; border:1.5px solid var(--line);}
+details.more{margin:6px 0 14px;} details.more summary{cursor:pointer; font-weight:600; color:var(--acct); font-size:15px;}
+.mini-link{color:var(--acct); font-weight:600; font-size:14.5px; background:none; border:0; cursor:pointer; text-decoration:underline; padding:0;}
+.linkrow{display:flex; gap:20px; flex-wrap:wrap; margin-top:14px;}
+.empty{color:var(--sub); font-size:15px; margin:8px 0;}
+.note.okn{background:var(--accd);} .note.okn i{background:var(--acc);}
+
+.next{align-items:center; gap:16px; flex-wrap:wrap;}
+.panel.show{animation:mi .35s ease both;}
+.btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+nav a.locked{opacity:.4; cursor:not-allowed;}
+/* guided tour: spotlight + floating coach marks */
+html.lock{overflow:hidden;}
+.dim{position:fixed; inset:0; z-index:90; background:color-mix(in srgb,var(--bg) 38%,transparent); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); opacity:0; pointer-events:none; transition:opacity .35s,clip-path .5s cubic-bezier(.2,.8,.2,1);}
+.dim.on{opacity:1; pointer-events:auto;}
+.ring{position:fixed; z-index:91; border:3px solid var(--acc); pointer-events:none; opacity:0; transition:opacity .3s;}
+.ring.on{opacity:1;}
+.ring::after{content:""; position:absolute; inset:-3px; border-radius:inherit; animation:rp 1.8s ease-out infinite;}
+@keyframes rp{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent);}100%{box-shadow:0 0 0 20px transparent;}}
+.tip{position:fixed; z-index:92; left:0; top:0; width:min(340px,calc(100vw - 24px)); background:var(--panel); border:1.5px solid var(--acc); border-radius:20px; padding:16px 18px 14px; box-shadow:0 24px 60px -18px rgba(0,0,0,.5); opacity:0; transform:translateY(8px) scale(.97); pointer-events:none; transition:opacity .3s,transform .3s;}
+.tip.on{opacity:1; transform:none; pointer-events:auto;}
+.tip::before{content:""; position:absolute; width:14px; height:14px; background:var(--panel); border:1.5px solid var(--acc); transform:rotate(45deg); left:var(--ax,50%); margin-left:-7px;}
+.tip.b::before{top:-8px; border-right:0; border-bottom:0;}
+.tip.t::before{bottom:-8px; border-left:0; border-top:0;}
+.tip.r::before{left:-8px; margin-left:0; top:var(--ay,50%); margin-top:-7px; border-top:0; border-right:0;}
+.tip.l::before{left:auto; right:-8px; margin-left:0; top:var(--ay,50%); margin-top:-7px; border-left:0; border-bottom:0;}
+.tip.n::before{display:none;}
+.th{display:flex; align-items:center; gap:10px; margin-bottom:8px;} .th svg{width:30px; height:30px; flex-shrink:0;}
+.th b{font:700 15px var(--head);} .th small{margin-left:auto; color:var(--sub); font-size:13px; font-weight:600;}
+.tip h4{font:900 20px/1.25 var(--head); margin:0 0 6px;} .tip p{margin:0; font-size:16px; line-height:1.5;}
+.ta{display:flex; gap:10px; margin-top:14px; align-items:center; flex-wrap:wrap;}
+.ta .btn{width:auto; padding:10px 20px; font-size:15px;} .btn.try{background:var(--acc); color:#06130D;}
+.skip{margin-left:auto; background:none; border:0; color:var(--sub); font:600 14px var(--body); cursor:pointer; text-decoration:underline; padding:4px 2px;}
+.resume{position:fixed; left:24px; bottom:calc(24px + env(safe-area-inset-bottom,0px)); z-index:70; display:flex; align-items:center; gap:6px; background:var(--ink); color:var(--bg); border-radius:30px; padding:8px 8px 8px 20px; font-weight:600; font-size:15px; opacity:0; transform:translateY(20px); pointer-events:none; transition:opacity .3s,transform .3s;}
+.resume.on{opacity:1; transform:none; pointer-events:auto;}
+.resume .btn{width:auto; padding:9px 16px; font-size:14.5px; background:var(--acc); color:#06130D;}
+.resume #rx{background:none; border:0; color:inherit; cursor:pointer; font-size:17px; padding:6px 10px;}
+.spot{border-radius:22px; outline:3px solid var(--acc); outline-offset:6px; animation:spot 1.6s ease-out 4;}
+@keyframes spot{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent);}100%{box-shadow:0 0 0 24px transparent;}}
+.rt{margin-left:auto; background:var(--panel); border:1.5px solid var(--line); color:var(--ink); border-radius:16px; padding:6px 12px; font:600 13.5px var(--body); cursor:pointer;} .rt:hover{border-color:var(--acc);}
+.fab.hold{animation:none;}
+@media (max-width:860px){.resume{left:14px;}}
+
+.fab{position:fixed; right:22px; bottom:calc(22px + env(safe-area-inset-bottom,0px)); z-index:60; width:68px; height:68px; border-radius:50%; background:var(--panel); border:2px solid var(--acc); cursor:pointer; box-shadow:0 12px 30px -10px rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; animation:fl 3s ease-in-out infinite;}
+@keyframes fl{50%{transform:translateY(-6px);}}
+.fab svg{width:44px; height:44px;} .fab::after{content:""; position:absolute; inset:-2px; border-radius:50%; border:2px solid var(--acc); animation:ring 2.4s ease-out infinite;}
+.fab.seen::after{display:none;}
+@keyframes ring{from{transform:scale(1); opacity:.7;}to{transform:scale(1.5); opacity:0;}}
+.chat{position:fixed; right:22px; bottom:calc(104px + env(safe-area-inset-bottom,0px)); z-index:60; width:370px; max-width:calc(100vw - 32px); height:min(580px,calc(100vh - 140px)); display:flex; flex-direction:column; background:var(--panel); border:1px solid var(--line); border-radius:22px; box-shadow:0 24px 60px -18px rgba(0,0,0,.45); overflow:hidden; transform:translateY(18px) scale(.96); opacity:0; pointer-events:none; transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .25s;}
+.chat.open{transform:none; opacity:1; pointer-events:auto;}
+.ch{display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--accd);} .ch svg{width:38px; height:38px;}
+.ch .x{margin-left:auto; width:34px; height:34px; border-radius:50%; border:0; background:transparent; color:var(--ink); font-size:24px; line-height:1; cursor:pointer;} .ch .x:hover{background:var(--panel);}
+.ch b{font:700 17px var(--head); display:block;} .ch small{color:var(--acct); font-size:13px;}
+.msgs{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px;}
+.m{max-width:86%; padding:11px 14px; border-radius:16px; font-size:15px; line-height:1.5; animation:mi .3s ease both;}
+@keyframes mi{from{opacity:0; transform:translateY(8px);}}
+.m.bot{background:var(--panel2); border:1px solid var(--line); border-bottom-left-radius:4px; align-self:flex-start;}
+.m.me{background:var(--acc); color:#06130D; border-bottom-right-radius:4px; align-self:flex-end; font-weight:500;}
+.dots span{display:inline-block; width:7px; height:7px; margin:0 2px; border-radius:50%; background:var(--sub); animation:dt 1s infinite;} .dots span:nth-child(2){animation-delay:.15s;} .dots span:nth-child(3){animation-delay:.3s;}
+@keyframes dt{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-5px);opacity:1;}}
+.chips{padding:4px 14px 10px; display:flex; flex-wrap:wrap; gap:8px;}
+.chip{background:var(--panel); border:1.5px solid var(--line); border-radius:18px; padding:8px 13px; font:500 14px var(--body); color:var(--ink); cursor:pointer; transition:border-color .15s,background .15s; animation:mi .35s ease both; animation-delay:var(--d,0s);}
+.chip:hover{border-color:var(--acc); background:var(--accd);} .chip.ex{background:var(--accd); border-color:var(--acc); color:var(--acct); font-weight:600;}
+.inp{display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line);}
+.inp input{flex:1; padding:11px 14px; border:1.5px solid var(--line); border-radius:22px; background:var(--panel2); color:var(--ink); font:400 15.5px var(--body); min-width:0;}
+.inp input:focus{outline:2px solid var(--acc); border-color:transparent;}
+.inp button{width:44px; height:44px; border-radius:50%; border:0; background:var(--acc); color:#06130D; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+
+@media (max-width:860px){
+  .login,.g2,.g-h,.opts{grid-template-columns:1fr;} .login{gap:28px;}
+  .screen{padding:118px 18px 60px;} .top{padding-left:16px; padding-right:16px;} .brand{font-size:17px;} nav a{padding:6px 12px; font-size:14px;}
+  .chat{right:12px; max-width:calc(100vw - 24px);} .fab{right:14px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,.blob,.fab,.fab::after,.hint{animation:none !important; transition:none !important;} [data-r]{opacity:1; transform:none;} html{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<header class="top">
+  <a class="brand" href="#login"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" fill="#49E09B"/></svg>Smart Energy Advisor</a>
+  <nav id="nav"><a href="#login" class="on">Login</a><a href="#add-bill">Add Bill</a><a href="#dashboard">Dashboard</a></nav>
+  <div class="auth" id="auth"></div>
+</header>
+
+<main>
+<!-- 1. LOGIN -->
+<section class="screen" id="login">
+  <div class="login">
+    <div data-r>
+      <div class="mwrap">
+        <svg class="mascot" id="mascot" viewBox="0 0 400 420" fill="none" aria-label="Friendly lightbulb mascot">
+          <circle class="mbg" cx="200" cy="230" r="150"/>
+          <rect x="178" y="58" width="44" height="22" rx="5" fill="#2F3B35"/><rect x="183" y="80" width="34" height="7" fill="#2F3B35" opacity=".6"/><rect x="183" y="91" width="34" height="7" fill="#2F3B35" opacity=".6"/>
+          <line x1="200" y1="58" x2="200" y2="40" stroke="#2F3B35" stroke-width="5" stroke-linecap="round"/><circle cx="200" cy="34" r="7" fill="#F2C94C"/>
+          <path d="M200 104c-50 0-88 38-88 88 0 38 23 62 40 78 9 9 13 18 13 29v6h70v-6c0-11 4-20 13-29 17-16 40-40 40-78 0-50-38-88-88-88z" fill="#F7E7A6"/>
+          <rect x="173" y="305" width="54" height="10" rx="2" fill="#B7BDC2"/><rect x="176" y="317" width="48" height="9" rx="2" fill="#9CA3A8"/><rect x="179" y="328" width="42" height="9" rx="2" fill="#B7BDC2"/><rect x="183" y="339" width="34" height="10" rx="3" fill="#7B8186"/>
+          <circle class="eye" cx="172" cy="195" r="22" fill="#0A1F17"/><circle class="eye" cx="228" cy="195" r="22" fill="#0A1F17"/>
+          <circle id="mpL" cx="172" cy="195" r="9" fill="#F7E7A6"/><circle id="mpR" cx="228" cy="195" r="9" fill="#F7E7A6"/>
+          <path d="M178 238Q200 256 222 238" stroke="#0A1F17" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="152" cy="220" r="10" fill="#F2A7A0" opacity=".6"/><circle cx="248" cy="220" r="10" fill="#F2A7A0" opacity=".6"/>
+        </svg>
+      </div>
+      <h1>Know your bill<br>before it arrives.</h1>
+      <p class="lead">Forecast next month's electricity bill, spot unusual usage, and get tips that actually cut costs.</p>
+    </div>
+    <div class="card lcard" id="loginForm" data-r style="--d:.15s"></div>
+  </div>
+  
+</section>
+
+<!-- 2. ADD BILL -->
+<section class="screen" id="add-bill" hidden>
+  <div data-r>
+    <span class="eyebrow">⚡ Step 1</span>
+    <h2>Add your bill data</h2>
+    <p class="lead">Upload a file you already have, type in a reading, or just snap a photo of your bill.</p>
+  </div>
+  <div class="opts">
+    <div class="opt" id="o-csv" data-opt="csv" data-r style="--d:.05s">
+      <div class="ib"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M15 2v5h5M8 13h8M8 17h5"/></svg></div>
+      <h3>CSV Upload</h3><p>Already have your bill history in a spreadsheet? Upload it directly.</p><span class="t">✓ Best for bulk history</span>
+    </div>
+    <div class="opt" id="o-manual" data-opt="manual" data-r style="--d:.12s">
+      <div class="ib"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></div>
+      <h3>Manual Entry</h3><p>Type units consumed and bill amount straight from your paper bill.</p><span class="t">✓ No file needed</span>
+    </div>
+    <div class="opt" id="o-ocr" data-opt="ocr" data-r style="--d:.19s">
+      <div class="ib"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg></div>
+      <h3>Bill Photo (OCR)</h3><p>Upload a photo — we read the units, amount and month automatically.</p><span class="t">✓ Fastest, no typing</span>
+    </div>
+  </div>
+  <p class="sub" id="pickhint" style="text-align:center;margin:20px 0 0;font-size:16px">👆 Choose an option above to get started</p>
+  <div class="panel" id="panel" hidden></div>
+  <div class="next"><span class="sub" id="toDashHint"></span><button class="btn auto" id="toDash" data-go="dashboard" disabled>See my dashboard ↓</button></div>
+</section>
+
+<!-- 3. DASHBOARD -->
+<section class="screen" id="dashboard" hidden>
+  <div data-r><span class="eyebrow">⚡ Step 2</span><h2>Your energy dashboard</h2></div>
+
+  <div class="card" data-r>
+    <h3>Uploaded bill</h3><div class="sub">The latest bill behind your forecast</div>
+    <div class="billrow">
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M15 2v5h5M8 13h8M8 17h5M8 9h3"/></svg></div>
+      <div class="kv"><div><small>Billing month</small><b id="bm">—</b></div><div><small>Units consumed</small><b id="bu">—</b></div><div><small>Bill amount</small><b id="ba">—</b></div><div><small>Source</small><b id="bs">—</b></div></div>
+      <span class="pill ok" id="bpill">Your data</span>
+    </div>
+  </div>
+
+  <div class="g g-h">
+    <div class="card hero" data-r>
+      <div><div class="sub" id="hl" style="color:var(--acct);font-weight:600;">NEXT MONTH FORECAST</div>
+        <div class="big"><span id="cur">₹</span><span id="amt">0</span><small>predicted bill</small></div>
+        <div class="sub" id="hs" style="margin-top:8px;"></div></div>
+      <div id="rbw"><div class="bar"><i id="rb"></i></div><div class="lab"><span id="rl1"></span><span id="rl2"></span><span id="rl3"></span></div></div>
+    </div>
+    <div class="minis" data-r style="--d:.12s">
+      <div class="mini"><div><small>This month's usage</small><b id="m1v">—</b></div><span class="pill ok" id="m1p">—</span></div>
+      <div class="mini"><div><small>Last flagged anomaly</small><b id="m2v">—</b></div><span class="pill ok" id="m2p">—</span></div>
+      <div class="mini"><div><small>Top appliance</small><b id="m3v">—</b></div><span class="pill ok" id="m3p">—</span></div>
+    </div>
+  </div>
+
+  <div class="g g2">
+    <div class="card chart" data-r>
+      <h3>Consumption trend</h3><div class="sub">Your recent billing months, with the forecast</div>
+      <svg id="chart" viewBox="0 0 600 220" role="img" aria-label="Consumption trend with forecast"></svg>
+      <div class="note" id="cnote"><i></i><span id="cnt"></span></div>
+    </div>
+    <div class="card" data-r style="--d:.12s">
+      <h3>Appliance breakdown</h3><div class="sub" id="apsub" style="margin-bottom:6px;"></div><div id="apl"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;" data-r>
+    <h3>What-if simulator</h3><div class="sub">Change one appliance's usage and see next month's bill update</div>
+    <p class="empty" id="simmsg" hidden></p>
+    <div class="sim" id="simctl"><select id="sapp" aria-label="Appliance"></select>
+      <div class="sl"><input type="range" id="sp" min="-50" max="50" value="-20" aria-label="Usage change percent"><div><span>-50%</span><span id="spl">-20% usage</span><span>+50%</span></div></div></div>
+    <div class="res" id="simres"><div><small>Simulated bill</small><b id="sa">—</b></div><div class="sv"><small>Estimated savings</small><b id="ss">—</b></div></div>
+  </div>
+
+  <div class="card" style="margin-top:16px;" data-r>
+    <h3>Personalized recommendations</h3><div class="sub">Based on your appliance mix and recent usage</div>
+    <div class="recs" id="recs"></div>
+  </div>
+  <div class="foot">Smart Energy Advisor — final-year Data Science field project · all calculations run in your browser</div>
+</section>
+
+</main>
+
+<!-- Guided tour -->
+<div class="dim" id="dim" aria-hidden="true"></div>
+<div class="ring" id="ring" aria-hidden="true"></div>
+<div class="tip" id="tip" role="dialog" aria-label="Watt's guided tour">
+  <div class="th"><svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#F7E7A6"/><circle class="eye" cx="38" cy="46" r="7" fill="#0A1F17"/><circle class="eye" cx="62" cy="46" r="7" fill="#0A1F17"/><path d="M40 62Q50 71 60 62" stroke="#0A1F17" stroke-width="3" stroke-linecap="round"/><circle cx="31" cy="58" r="4" fill="#F2A7A0" opacity=".6"/><circle cx="69" cy="58" r="4" fill="#F2A7A0" opacity=".6"/></svg><b>Watt</b><small id="tcount"></small></div>
+  <h4 id="tt"></h4><p id="tp" aria-live="polite"></p>
+  <div class="ta" id="ta"></div>
+</div>
+<div class="resume" id="resume"><span>Tour paused</span><button class="btn" id="rgo" type="button">Continue tour →</button><button id="rx" type="button" aria-label="End tour">✕</button></div>
+
+<!-- Watt chatbot -->
+<button class="fab" id="fab" aria-label="Chat with Watt">
+  <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" fill="#F7E7A6"/><circle class="eye" cx="38" cy="46" r="7" fill="#0A1F17"/><circle class="eye" cx="62" cy="46" r="7" fill="#0A1F17"/><circle id="fpL" cx="38" cy="46" r="2.8" fill="#F7E7A6"/><circle id="fpR" cx="62" cy="46" r="2.8" fill="#F7E7A6"/><path d="M40 62Q50 71 60 62" stroke="#0A1F17" stroke-width="3" stroke-linecap="round"/><circle cx="31" cy="58" r="4" fill="#F2A7A0" opacity=".6"/><circle cx="69" cy="58" r="4" fill="#F2A7A0" opacity=".6"/></svg>
+</button>
+<div class="chat" id="chat" role="dialog" aria-label="Watt assistant">
+  <div class="ch">
+    <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" fill="#F7E7A6"/><circle cx="38" cy="46" r="7" fill="#0A1F17"/><circle cx="62" cy="46" r="7" fill="#0A1F17"/><path d="M40 62Q50 71 60 62" stroke="#0A1F17" stroke-width="3" stroke-linecap="round"/></svg>
+    <div><b>Watt</b><small id="ctx">● Looking at: Login</small></div><button class="rt" id="retour" type="button">↻ Tour</button><button class="x" id="cx" type="button" aria-label="Close chat">×</button>
+  </div>
+  <div class="msgs" id="msgs" aria-live="polite"></div>
+  <div class="chips" id="chips"></div>
+  <form class="inp" id="cform"><input id="cin" type="text" placeholder="Ask Watt anything…" autocomplete="off" aria-label="Type your question"><button type="submit" aria-label="Send"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let cur='login', introPhase=true;
+/* go() lives with the unlock logic below */
+document.addEventListener('click',e=>{const t=e.target.closest('[data-go]'); if(t){e.preventDefault(); go(t.dataset.go);}});
+
+
+/* reveal + section tracking */
+const rio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in'); rio.unobserve(e.target);}}),{threshold:.12});
+$$('[data-r]').forEach(el=>rio.observe(el));
+const NAMES={login:'Login','add-bill':'Add Bill',dashboard:'Dashboard'};
+const sio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){cur=e.target.id;
+  $$('#nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));
+  $('#ctx').textContent='● Looking at: '+NAMES[cur]; if(!introPhase) renderChips(); if(cur==='dashboard') runDash();}}),{threshold:.5});
+$$('.screen').forEach(s=>sio.observe(s));
+
+/* cursor-follow eyes */
+const sets=[{svg:$('#mascot'),w:400,h:420,max:7,div:8,p:[[$('#mpL'),172,195],[$('#mpR'),228,195]]},
+            {svg:$('#fab svg'),w:100,h:100,max:2.4,div:14,p:[[$('#fpL'),38,46],[$('#fpR'),62,46]]}];
+addEventListener('pointermove',e=>sets.forEach(s=>{const r=s.svg.getBoundingClientRect(); const x=(e.clientX-r.left)*s.w/r.width, y=(e.clientY-r.top)*s.h/r.height;
+  s.p.forEach(([el,cx,cy])=>{const dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy)||1,o=Math.min(s.max,d/s.div); el.setAttribute('cx',cx+dx/d*o); el.setAttribute('cy',cy+dy/d*o);});}),{passive:true});
+
+/* mascot shuts its eyes while typing the password */
+document.addEventListener('focusin',e=>{if(e.target.matches&&e.target.matches('#loginForm input[type=password]')) $('#mascot').classList.add('shut');});
+document.addEventListener('focusout',e=>{if(e.target.matches&&e.target.matches('#loginForm input[type=password]')) $('#mascot').classList.remove('shut');});
+
+/* ================= data engine: runs entirely in your browser ================= */
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const mlabel=m=>MON[+m.slice(5)-1]+' '+m.slice(0,4);
+const nextM=m=>{let y=+m.slice(0,4),k=+m.slice(5)+1; if(k>12){k=1;y++;} return y+'-'+String(k).padStart(2,'0');};
+function solve(A,b){const n=b.length,M=A.map((r,i)=>[...r,b[i]]);for(let i=0;i<n;i++){let p=i;for(let r=i+1;r<n;r++)if(Math.abs(M[r][i])>Math.abs(M[p][i]))p=r;[M[i],M[p]]=[M[p],M[i]];if(Math.abs(M[i][i])<1e-12)M[i][i]=1e-12;for(let r=0;r<n;r++){if(r===i)continue;const f=M[r][i]/M[i][i];for(let c=i;c<=n;c++)M[r][c]-=f*M[i][c];}}return M.map((r,i)=>r[n]/r[i]);}
+const feat=(i,mo,s)=>s?[1,i,Math.sin(2*Math.PI*mo/12),Math.cos(2*Math.PI*mo/12)]:[1,i];
+function forecast(R){ /* trend (+ seasonal terms once there are 12+ months) via least squares */
+  if(R.length<3) return null; const seas=R.length>=12, X=R.map((r,i)=>feat(i,+r.m.slice(5),seas)), y=R.map(r=>r.u), k=X[0].length;
+  const A=Array.from({length:k},(_,i)=>Array.from({length:k},(_,j)=>X.reduce((s,r)=>s+r[i]*r[j],0)+(i===j?1e-6:0))), B=Array.from({length:k},(_,i)=>X.reduce((s,r,t)=>s+r[i]*y[t],0));
+  const beta=solve(A,B), dot=f=>f.reduce((s,v,i)=>s+v*beta[i],0), nm=nextM(R[R.length-1].m);
+  const pred=Math.max(0,dot(feat(R.length,+nm.slice(5),seas))), res=X.map((r,t)=>y[t]-dot(r)), sd=Math.sqrt(res.reduce((s,v)=>s+v*v,0)/res.length)||pred*.1;
+  const rates=R.filter(r=>r.u>0).map(r=>r.a/r.u).sort((a,b)=>a-b), rate=rates[Math.floor(rates.length/2)]||0;
+  return {m:nm,u:pred,lo:Math.max(0,pred-sd),hi:pred+sd,amt:pred*rate,rate};}
+function anomalies(R){ /* a month is flagged when it is 35%+ away from the same month a year earlier */
+  const out=[],idx={}; R.forEach((r,i)=>idx[r.m]=i);
+  for(const r of R){const py=(+r.m.slice(0,4)-1)+r.m.slice(4), p=R[idx[py]]; if(!p||p.u<=0) continue; const ratio=r.u/p.u; if((ratio>1.35||ratio<.65)&&Math.abs(r.u-p.u)>=5) out.push({m:r.m,u:r.u,prev:p.u,ratio});}
+  return out;}
+const APN={ac:'Air Conditioner',fridge:'Refrigerator',light:'Lighting',wash:'Washing Machine',tv:'Television',misc:'Other / Misc'};
+const TIP={ac:"Set the AC to 24–26°C and clean its filters monthly — each degree lower adds roughly 6% to cooling cost.",fridge:"Keep the fridge away from walls and sunlight, and check that the door seal is tight.",light:"Swap any remaining CFL or old bulbs for LEDs and switch lights off in empty rooms.",wash:"Run full loads and use cold-water cycles when you can.",tv:"Turn on eco mode and avoid leaving the TV on standby.",misc:"Unplug chargers and small appliances when idle — standby load adds up."};
+
+/* sample data (24 months, one real spike in Aug 2026) */
+const SU=[26,25,20,19,22,33,45,41,37,30,34,31,27,26,21,20,24,36,49,45,40,32,58,33];
+function sampleRows(){let m='2024-10'; return SU.map(u=>{const mo=+m.slice(5), ap={ac:u*((mo>=3&&mo<=8)?.35:.10),fridge:u*.15,light:u*.10,wash:u*.08,tv:u*.07}; ap.misc=u-Object.values(ap).reduce((a,b)=>a+b,0); for(const k in ap) ap[k]=Math.round(ap[k]*10)/10; const r={m,u,a:Math.round(u*1080)/100,ap}; m=nextM(m); return r;});}
+
+/* storage + accounts (demo-level: everything lives in this browser) */
+const LS={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);return true;}catch(e){return false;}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
+let D={rows:sampleRows(),source:'Sample data',sample:true}, S=null, mode='login', dataReady=false;
+const dkey=()=>'sea_data_'+S.email;
+function commit(){ if(S&&!S.guest) LS.set(dkey(),JSON.stringify({rows:D.rows,source:D.source})); render(); }
+function setRows(rows,source){ dataReady=true; D={rows,source,sample:false}; commit(); }
+function upsert(r,source){ dataReady=true; if(D.sample) D={rows:[],source,sample:false}; const i=D.rows.findIndex(x=>x.m===r.m); if(i>=0) D.rows[i]=r; else D.rows.push(r); D.rows.sort((a,b)=>a.m<b.m?-1:1); D.source=source; commit(); }
+const users=()=>{try{return JSON.parse(LS.get('sea_users')||'{}');}catch(e){return {};}};
+async function hash(pw,salt){const bytes=new TextEncoder().encode(salt+':'+pw); if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',bytes); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');} let h=5381; for(const c of salt+pw) h=((h<<5)+h+c.charCodeAt(0))|0; return 'f'+h;}
+function setSession(s){
+  S=s; mode='login'; if(s.guest) LS.del('sea_session'); else LS.set('sea_session',JSON.stringify({email:s.email,name:s.name}));
+  if(!s.guest){const raw=LS.get(dkey()); let ok=false; if(raw){try{const d=JSON.parse(raw); if(d&&Array.isArray(d.rows)&&d.rows.length){D={rows:d.rows,source:d.source||'Saved data',sample:false}; ok=true; dataReady=true;}}catch(e){}} if(!ok&&!D.sample) LS.set(dkey(),JSON.stringify({rows:D.rows,source:D.source}));}
+  renderAuth(); renderLogin(); render(); updateNav();}
+function logout(){LS.del('sea_session'); S=null; mode='login'; dataReady=false; lockAll(); D={rows:sampleRows(),source:'Sample data',sample:true}; renderAuth(); renderLogin(); render(); go('login');}
+function renderAuth(){const a=$('#auth'); if(!S){a.innerHTML='';return;}
+  a.innerHTML=S.guest?'<span>Guest</span><button type="button" id="alog">Log in</button>':'<span>Hi, <b></b></span><button type="button" id="alog">Log out</button>';
+  if(!S.guest) a.querySelector('b').textContent=S.name||S.email; $('#alog').onclick=()=>S.guest?go('login'):logout();}
+function renderLogin(){
+  const c=$('#loginForm');
+  if(S&&!S.guest){c.innerHTML='<span class="eyebrow">⚡ Logged in</span><h2></h2><p class="small" style="text-align:left;margin:0 0 18px">Your bills are saved in this browser for this account.</p><button class="btn" type="button" data-go="add-bill">Continue →</button><button class="btn ghost" type="button" id="lo">Log out</button>'; c.querySelector('h2').textContent='Hi, '+(S.name||S.email); $('#lo').onclick=logout; return;}
+  const su=mode==='signup';
+  c.innerHTML=`<span class="eyebrow">⚡ ${su?'Create account':'Welcome back'}</span><h2>${su?'Sign up':'Log in'}</h2>
+  <form id="lf" novalidate>${su?'<label>Name<input name="name" autocomplete="name" placeholder="Your name"></label>':''}
+  <label>Email<input name="email" type="email" placeholder="you@example.com" autocomplete="email"></label>
+  <label>Password<input name="pw" type="password" placeholder="${su?'At least 6 characters':'••••••••'}" autocomplete="${su?'new-password':'current-password'}"></label>
+  <p class="err" id="lerr" role="alert"></p><button class="btn" type="submit" style="margin-top:8px">${su?'Create account':'Log in'} →</button></form>
+  <button class="btn ghost" type="button" id="lg">Continue as guest</button>
+  <p class="small">${su?'Already have an account?':'New here?'} <a href="#" id="lt">${su?'Log in':'Create an account'}</a></p>
+  <p class="small" style="margin-top:6px;font-size:13px">Demo accounts live only in this browser — don't reuse a real password.</p>`;
+  $('#lg').onclick=()=>{setSession({guest:true}); go('add-bill');};
+  $('#lt').onclick=e=>{e.preventDefault(); mode=su?'login':'signup'; renderLogin();};
+  $('#lf').addEventListener('submit',async e=>{e.preventDefault(); const f=new FormData(e.target), email=(f.get('email')||'').trim().toLowerCase(), pw=f.get('pw')||'', name=(f.get('name')||'').trim(), err=$('#lerr');
+    if(!/^\S+@\S+\.\S+$/.test(email)){err.textContent='Please enter a valid email address.';return;}
+    if(pw.length<6){err.textContent='Password must be at least 6 characters.';return;}
+    const U=users();
+    if(su){ if(U[email]){err.textContent='An account with this email already exists. Try logging in.';return;} const salt=Math.random().toString(36).slice(2); U[email]={salt,h:await hash(pw,salt),name}; if(!LS.set('sea_users',JSON.stringify(U))){err.textContent='Could not save the account (browser storage is blocked).';return;} }
+    else {const u=U[email]; if(!u||u.h!==await hash(pw,u.salt)){err.textContent='Wrong email or password.';return;}}
+    setSession({email,name:su?name:U[email].name}); go('add-bill');});
+}
+
+/* ---------- page gating: login -> add bill -> dashboard ---------- */
+function updateNav(){$$('#nav a').forEach(a=>{const id=a.getAttribute('href').slice(1), locked=$('#'+id).hidden&&!(id==='add-bill'&&S); a.classList.toggle('locked',locked); a.setAttribute('aria-disabled',locked?'true':'false'); a.title=locked?(id==='add-bill'?'Log in or continue as guest first':'Add your bill data first'):'';});}
+function updateGate(){const b=$('#toDash'); if(!b) return; b.disabled=!dataReady; $('#toDashHint').textContent=dataReady?'':'Add your bill data above first, or use the sample data.';}
+function unlock(id){const el=$('#'+id); if(!el.hidden) return; el.hidden=false; updateNav(); setTimeout(()=>maybeTour(id),1100);}
+function lockAll(){['add-bill','dashboard'].forEach(i=>$('#'+i).hidden=true); resetAdd(); updateNav(); updateGate();}
+function go(id){const el=$('#'+id); if(el.hidden){ if(id==='add-bill'&&S) unlock(id); else if(id==='dashboard'&&S&&dataReady) unlock(id); else return; } requestAnimationFrame(()=>el.scrollIntoView({behavior:'smooth'}));}
+
+/* ---------- reading bills: CSV, manual entry, photo ---------- */
+function splitLine(l,d){const o=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch==='"'){if(l[i+1]==='"'){c+='"';i++;}else q=false;}else c+=ch;}else if(ch==='"')q=true;else if(ch===d){o.push(c);c='';}else c+=ch;}o.push(c);return o.map(s=>s.trim());}
+const HMAP={month:'m',billing_month:'m',date:'m',billing_period:'m',units:'u',units_consumed:'u',kwh:'u',consumption:'u',amount:'a',bill_amount:'a',total_amount:'a',bill:'a',ac_units:'ac',fridge_units:'fridge',lighting_units:'light',washing_machine_units:'wash',tv_units:'tv',misc_units:'misc'};
+const num=v=>{let s=String(v==null?'':v).replace(/[₹\s]|rs\.?/gi,''); if(/^\d+,\d{1,2}$/.test(s)) s=s.replace(',','.'); else s=s.replace(/,/g,''); const n=parseFloat(s); return isFinite(n)?n:NaN;};
+function parseMonth(s){s=String(s||'').trim(); let m=s.match(/^(\d{4})[-\/.](\d{1,2})/); if(m&&+m[2]>=1&&+m[2]<=12) return m[1]+'-'+m[2].padStart(2,'0'); m=s.match(/^(\d{1,2})[-\/.](\d{4})$/); if(m&&+m[1]>=1&&+m[1]<=12) return m[2]+'-'+m[1].padStart(2,'0'); const d=new Date(s); return isNaN(d)?null:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function parseCSV(text){
+  const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim()); if(lines.length<2) return {error:'The file looks empty — it needs a header row and at least one bill.'};
+  const d=[',',';','\t'].map(x=>[x,lines[0].split(x).length]).sort((a,b)=>b[1]-a[1])[0][0];
+  const head=splitLine(lines[0],d).map(h=>HMAP[h.toLowerCase().replace(/[\s-]+/g,'_')]||null);
+  if(!head.includes('m')||!head.includes('u')||!head.includes('a')) return {error:'Could not find the required columns. The header row needs billing_month, units_consumed and bill_amount.'};
+  const by={}; let skipped=0;
+  for(const l of lines.slice(1)){const c=splitLine(l,d), r={}; head.forEach((k,i)=>{if(k) r[k]=c[i];}); const m=parseMonth(r.m), u=num(r.u), a=num(r.a); if(!m||!(u>=0)||!(a>=0)){skipped++;continue;}
+    const ap={}; for(const k of Object.keys(APN)){const v=num(r[k]); if(v>=0) ap[k]=v;} by[m]={m,u,a,ap:Object.keys(ap).length?ap:null};}
+  const rows=Object.values(by).sort((a,b)=>a.m<b.m?-1:1); if(!rows.length) return {error:'No valid rows found. Check that months look like 2026-09 and that units and amount are numbers.'};
+  return {rows,skipped};}
+function csvOf(rows){const K=Object.keys(APN),H=['billing_month','units_consumed','bill_amount',...K.map(k=>({ac:'ac_units',fridge:'fridge_units',light:'lighting_units',wash:'washing_machine_units',tv:'tv_units',misc:'misc_units'}[k]))];
+  return [H.join(','),...rows.map(r=>[r.m,r.u,r.a,...K.map(k=>r.ap&&r.ap[k]!=null?r.ap[k]:'')].join(','))].join('\n');}
+function download(name,text){const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/csv'})); a.download=name; document.body.appendChild(a); a.click(); a.remove();}
+function parseBillText(t){
+  const g=res=>{for(const r of res){const m=t.match(r); if(m) return m;} return null;};
+  const um=g([/(?:units?\s*consumed|total\s*units?|energy\s*consumed|consumption)[^\d\n]{0,14}(\d+(?:\.\d+)?)/i,/(\d+(?:\.\d+)?)\s*(?:units|kwh)\b/i]);
+  const am=g([/(?:net\s*payable|amount\s*payable|total\s*(?:amount|bill)|bill\s*amount|current\s*bill)[^\d\n]{0,14}(\d[\d,]*(?:\.\d+)?)/i,/(?:₹|rs\.?)\s*(\d[\d,]*(?:\.\d+)?)/i]);
+  const mm=g([/(?:billing\s*(?:period|month)|bill\s*month|month\s*of)[^A-Za-z0-9]{0,8}([A-Za-z]{3,9})[\s\-,\/]*(\d{4})/i,/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s\-,\/]*(\d{4})\b/i]);
+  let m=null; if(mm){const i=MON.findIndex(x=>x.toLowerCase()===mm[1].slice(0,3).toLowerCase()); if(i>=0) m=mm[2]+'-'+String(i+1).padStart(2,'0');}
+  return {m,u:um?parseFloat(um[1]):null,a:am?parseFloat(am[1].replace(/,/g,'')):null};}
+let tessP=null;
+function loadTesseract(){ if(window.Tesseract) return Promise.resolve(window.Tesseract);
+  return tessP||(tessP=new Promise((res,rej)=>{const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js'; s.onload=()=>res(window.Tesseract); s.onerror=()=>{tessP=null; rej(new Error('load'));}; document.head.appendChild(s);}));}
+
+function panelCSV(p){
+  p.innerHTML=`<h4>Upload bill history CSV</h4><div class="s">Needs columns <b>billing_month, units_consumed, bill_amount</b>. Optional appliance columns: ac_units, fridge_units, lighting_units, washing_machine_units, tv_units, misc_units.</div>
+  <label class="drop" id="drop" tabindex="0"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg><div style="margin-top:8px"><b>Drag &amp; drop your CSV here</b>, or click to browse</div><input id="csvf" type="file" accept=".csv,text/csv,.txt" hidden></label>
+  <p class="err" id="cmsg" role="status"></p>
+  <div class="linkrow"><button class="mini-link" id="tpl" type="button">Download a CSV template</button><button class="mini-link" id="smp" type="button">Use the sample data instead</button></div>`;
+  const msg=$('#cmsg'), drop=$('#drop');
+  const handle=async f=>{ if(!f) return; msg.className='err'; msg.textContent=''; if(f.size>5e6){msg.textContent='That file is too large (max 5 MB).';return;}
+    const r=parseCSV(await f.text()); if(r.error){msg.textContent=r.error;return;}
+    setRows(r.rows,f.name); msg.className='ok-msg'; msg.textContent='Loaded '+r.rows.length+' month'+(r.rows.length>1?'s':'')+' from '+f.name+(r.skipped?' ('+r.skipped+' row'+(r.skipped>1?'s':'')+' skipped)':'')+'. Tap “See my dashboard” below when you are ready.';};
+  $('#csvf').addEventListener('change',e=>handle(e.target.files[0]));
+  drop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); $('#csvf').click();}});
+  ['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault(); drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault(); drop.classList.remove('over');}));
+  drop.addEventListener('drop',e=>handle(e.dataTransfer.files[0]));
+  $('#tpl').onclick=()=>download('smart_energy_template.csv',csvOf(sampleRows().slice(-12)));
+  $('#smp').onclick=()=>{dataReady=true; D={rows:sampleRows(),source:'Sample data',sample:true}; commit(); msg.className='ok-msg'; msg.textContent='Sample data loaded. Tap “See my dashboard” below.';};
+}
+function savedMsg(el,m){el.className='ok-msg'; const n=D.rows.length; el.textContent='Saved '+mlabel(m)+'. '+(n<3?'Add '+(3-n)+' more month'+(3-n>1?'s':'')+' to unlock the forecast, or tap “See my dashboard” below.':'Tap “See my dashboard” below when you are ready.');}
+function panelManual(p){
+  const t=new Date(), dm=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0');
+  p.innerHTML=`<h4>Enter a bill</h4><div class="s">Add one month at a time from your paper bill. Adding the same month again updates it.</div>
+  <form id="mf" novalidate><div class="row"><div class="f"><label for="mm">Billing month</label><input id="mm" name="m" type="month" value="${dm}"></div>
+  <div class="f"><label for="mu">Units consumed (kWh)</label><input id="mu" name="u" type="number" min="0" step="any" inputmode="decimal" placeholder="33"></div>
+  <div class="f"><label for="ma">Bill amount (₹)</label><input id="ma" name="a" type="number" min="0" step="any" inputmode="decimal" placeholder="360"></div></div>
+  <details class="more"><summary>Appliance split (optional)</summary><div class="row" style="margin-top:12px">${Object.keys(APN).map(k=>`<div class="f"><label>${APN[k]} (units)</label><input name="${k}" type="number" min="0" step="any" inputmode="decimal"></div>`).join('')}</div></details>
+  <p class="err" id="mmsg" role="alert"></p><button class="btn auto" type="submit">Add to my data</button></form>`;
+  $('#mf').addEventListener('submit',e=>{e.preventDefault(); const f=new FormData(e.target), m=parseMonth(f.get('m')), u=num(f.get('u')), a=num(f.get('a')), msg=$('#mmsg'); msg.className='err';
+    if(!m){msg.textContent='Pick a billing month.';return;} if(!(u>=0)){msg.textContent='Enter the units consumed.';return;} if(!(a>=0)){msg.textContent='Enter the bill amount.';return;}
+    const ap={}; for(const k of Object.keys(APN)){const v=num(f.get(k)); if(v>=0) ap[k]=v;}
+    upsert({m,u,a,ap:Object.keys(ap).length?ap:null},'Manual entry'); e.target.elements.u.value=''; e.target.elements.a.value=''; savedMsg(msg,m);});
+}
+function panelOCR(p){
+  p.innerHTML=`<h4>Upload a photo of your bill</h4><div class="s">I'll try to read the billing month, units and amount from the photo. Works best on clear bills with English text — always check the values before saving.</div>
+  <div class="photo"><div><label class="drop" id="pdrop" tabindex="0" style="min-width:200px;padding:26px 16px"><b>Choose a photo</b><div class="sub">JPG or PNG</div><input id="pf" type="file" accept="image/*" hidden></label><img id="pimg" alt="Your bill photo" hidden style="margin-top:12px"></div>
+  <form id="of" novalidate style="flex:1;min-width:230px"><p class="sub" id="ost" role="status">Pick a photo to begin.</p>
+  <div class="row"><div class="f"><label for="om">Billing month</label><input id="om" name="m" type="month"></div><div class="f"><label for="ou">Units consumed</label><input id="ou" name="u" type="number" min="0" step="any"></div><div class="f"><label for="oa">Bill amount (₹)</label><input id="oa" name="a" type="number" min="0" step="any"></div></div>
+  <p class="err" id="omsg" role="alert"></p><button class="btn auto" type="submit">Confirm &amp; add</button></form></div>`;
+  $('#pdrop').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); $('#pf').click();}});
+  $('#pf').addEventListener('change',async e=>{const f=e.target.files[0]; if(!f) return; const st=$('#ost'), em=$('#omsg'); em.textContent='';
+    if(!f.type.startsWith('image/')){em.textContent='Please choose an image file.';return;}
+    const img=$('#pimg'); img.src=URL.createObjectURL(f); img.hidden=false; st.textContent='Reading your bill…';
+    try{const T=await loadTesseract(); const {data}=await T.recognize(f,'eng',{logger:m=>{if(m.status==='recognizing text') st.textContent='Reading your bill… '+Math.round(m.progress*100)+'%';}});
+      const r=parseBillText(data.text||''); if(r.m) $('#om').value=r.m; if(r.u!=null) $('#ou').value=r.u; if(r.a!=null) $('#oa').value=r.a;
+      st.textContent=(r.m||r.u!=null||r.a!=null)?'Here is what I found. Please check each value, then confirm.':'I couldn’t find the values in this photo. Please type them from the picture.';
+    }catch(err){st.textContent='Automatic reading isn’t available right now. Please type the values from the photo.';}});
+  $('#of').addEventListener('submit',e=>{e.preventDefault(); const f=new FormData(e.target), m=parseMonth(f.get('m')), u=num(f.get('u')), a=num(f.get('a')), msg=$('#omsg'); msg.className='err';
+    if(!m){msg.textContent='Pick the billing month.';return;} if(!(u>=0)){msg.textContent='Enter the units consumed.';return;} if(!(a>=0)){msg.textContent='Enter the bill amount.';return;}
+    upsert({m,u,a,ap:null},'Bill photo'); savedMsg(msg,m);});
+}
+const PANELS={csv:panelCSV,manual:panelManual,ocr:panelOCR};
+function pick(k){$$('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.opt===k)); const p=$('#panel'); PANELS[k](p); $('#pickhint').hidden=true; p.hidden=false; p.classList.remove('show'); void p.offsetWidth; p.classList.add('show');}
+function resetAdd(){$$('.opt').forEach(o=>o.classList.remove('sel')); const p=$('#panel'); p.hidden=true; p.innerHTML=''; p.classList.remove('show'); $('#pickhint').hidden=false;}
+$$('.opt').forEach(o=>{o.tabIndex=0; o.setAttribute('role','button'); o.addEventListener('click',()=>pick(o.dataset.opt)); o.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); pick(o.dataset.opt);}});});
+
+/* ---------- dashboard: everything below is calculated from your rows ---------- */
+function tween(el,a,b,f,ms=900){const t0=performance.now(); (function s(n){const p=Math.min(1,(n-t0)/ms),k=1-Math.pow(1-p,3); el.textContent=f(a+(b-a)*k); if(p<1) requestAnimationFrame(s);})(t0);}
+let VIEW={f:null,shares:null}, simShown={a:0,s:0};
+const top1=ap=>Object.keys(ap).sort((a,b)=>ap[b]-ap[a])[0], sum=ap=>Object.values(ap).reduce((a,b)=>a+b,0)||1;
+function buildChart(R,f,an){
+  const anm=new Set(an.map(a=>a.m)), pts=R.slice(-12).map(r=>({m:r.m,v:r.u,an:anm.has(r.m)})); if(f) pts.push({m:f.m,v:f.u,fc:true});
+  const W=600,H=220,P=30,n=pts.length,mx=Math.max(10,Math.ceil(Math.max(...pts.map(p=>p.v))*1.15/5)*5),x=i=>n>1?P+i*(W-2*P)/(n-1):W/2,y=v=>H-34-(v/mx)*(H-64);
+  const q=pts.map((p,i)=>[x(i),y(p.v)]), k=f?n-1:n; let d=`M${q[0][0]},${q[0][1]}`;
+  for(let i=1;i<k;i++){const mx2=(q[i-1][0]+q[i][0])/2,my2=(q[i-1][1]+q[i][1])/2; d+=` Q${q[i-1][0]},${q[i-1][1]} ${mx2},${my2}`;} if(k>1) d+=` L${q[k-1][0]},${q[k-1][1]}`;
+  let g=''; [0,mx/2,mx].forEach(v=>g+=`<line class="gl" x1="${P}" x2="${W-P}" y1="${y(v)}" y2="${y(v)}"/><text class="tx" x="2" y="${y(v)+4}">${Math.round(v)}</text>`);
+  let t=''; pts.forEach((p,i)=>t+=`<text class="tx" x="${x(i)}" y="${H-8}" text-anchor="middle">${MON[+p.m.slice(5)-1]}${p.fc?'*':''}</text>`);
+  let s=g; if(k>1) s+=`<path class="ar" d="${d} L${q[k-1][0]},${y(0)} L${q[0][0]},${y(0)}Z"/><path class="ln" id="lp" d="${d}"/>`;
+  if(f&&k>=1) s+=`<path class="fc" d="M${q[k-1][0]},${q[k-1][1]} L${q[n-1][0]},${q[n-1][1]}"/><circle cx="${q[n-1][0]}" cy="${q[n-1][1]}" r="6" fill="var(--acc)"/>`;
+  pts.forEach((p,i)=>{if(p.an) s+=`<circle cx="${q[i][0]}" cy="${q[i][1]}" r="7" fill="var(--warn)"/>`; else if(!p.fc&&n<=8) s+=`<circle cx="${q[i][0]}" cy="${q[i][1]}" r="3.5" fill="var(--acc)"/>`;});
+  $('#chart').innerHTML=s+t;}
+function render(){
+  const R=D.rows, last=R[R.length-1], f=forecast(R), an=anomalies(R), la=an[an.length-1], avg=R.reduce((s,r)=>s+r.u,0)/R.length, ap=last.ap; VIEW.f=f;
+  $('#bm').textContent=mlabel(last.m); $('#bu').textContent=Math.round(last.u*10)/10+' units'; $('#ba').textContent='₹'+last.a.toFixed(2); $('#bs').textContent=D.source;
+  const bp=$('#bpill'); bp.textContent=D.sample?'Sample data':'Your data'; bp.className='pill '+(D.sample?'warn':'ok');
+  if(f){$('#hl').textContent='NEXT MONTH FORECAST · '+mlabel(f.m).toUpperCase(); $('#cur').hidden=false; $('#amt').textContent=Math.round(f.amt);
+    $('#hs').innerHTML='≈ <b>'+Math.round(f.u)+' units</b> · likely range '+Math.round(f.lo)+'–'+Math.round(f.hi)+', from your last '+Math.min(12,R.length)+' months';
+    $('#rl1').textContent=Math.round(f.lo)+' units'; $('#rl2').textContent=Math.round(f.u)+' (predicted)'; $('#rl3').textContent=Math.round(f.hi)+' units'; $('#rbw').hidden=false; $('#rb').style.width='28%';}
+  else{$('#hl').textContent='NEXT MONTH FORECAST'; $('#cur').hidden=true; $('#amt').textContent='—'; $('#hs').textContent='Add at least 3 months of bills to unlock the forecast.'; $('#rbw').hidden=true;}
+  const hiU=last.u>avg*1.2, loU=last.u<avg*.8; $('#m1v').textContent=Math.round(last.u*10)/10+' units'; $('#m1p').textContent=hiU?'Above average':loU?'Below average':'Normal'; $('#m1p').className='pill '+(hiU?'warn':'ok');
+  $('#m2v').textContent=la?mlabel(la.m):'None found'; $('#m2p').textContent=la?(la.ratio>1?'Spike':'Drop'):(R.length<13?'Needs 13+ months':'All clear'); $('#m2p').className='pill '+(la?'warn':'ok');
+  if(ap){const k=top1(ap); $('#m3v').textContent=APN[k]; $('#m3p').textContent=Math.round(ap[k]*10)/10+' u';} else{$('#m3v').textContent='—'; $('#m3p').textContent='No data';}
+  buildChart(R,f,an);
+  const cn=$('#cnote'); cn.className='note'+(la?'':' okn');
+  $('#cnt').textContent=la?mlabel(la.m)+' ('+la.u+' units) was '+Math.round(Math.abs(la.ratio-1)*100)+'% '+(la.ratio>1?'higher':'lower')+' than the same month a year earlier ('+la.prev+' units).':(R.length<13?'Add 13+ months of bills and I\u2019ll compare each month with the same month last year to spot unusual ones.':'No month stands out compared with the same month a year earlier.');
+  const box=$('#apl');
+  if(ap){const tot=sum(ap); $('#apsub').textContent='Share of '+mlabel(last.m)+'\u2019s '+Math.round(last.u)+' units'; box.innerHTML=Object.keys(ap).sort((a,b)=>ap[b]-ap[a]).map(k=>`<div class="ap"><span>${APN[k]}</span><div><i data-w="${Math.round(100*ap[k]/tot)}"></i></div><em>${Math.round(100*ap[k]/tot)}%</em></div>`).join('');}
+  else{$('#apsub').textContent='Not available for this data'; box.innerHTML='<p class="empty">No appliance data yet. Add columns like ac_units and fridge_units to your CSV, or fill the optional appliance split when adding a bill by hand.</p>';}
+  if(f&&ap){const tot=sum(ap); VIEW.shares={}; Object.keys(ap).forEach(k=>VIEW.shares[k]=ap[k]/tot); $('#sapp').innerHTML=Object.keys(ap).sort((a,b)=>ap[b]-ap[a]).map(k=>`<option value="${k}">${APN[k]}</option>`).join('');
+    $('#simctl').hidden=false; $('#simres').hidden=false; $('#simmsg').hidden=true; simShown={a:Math.round(f.amt),s:0}; upSim(true);}
+  else{VIEW.shares=null; $('#simctl').hidden=true; $('#simres').hidden=true; $('#simmsg').hidden=false; $('#simmsg').textContent=f?'Add appliance columns to your data to use the simulator.':'Add at least 3 months of bills to use the simulator.';}
+  const rc=[]; if(ap){const k=top1(ap); rc.push([APN[k],TIP[k]+' It makes up '+Math.round(100*ap[k]/sum(ap))+'% of '+mlabel(last.m)+'.']);}
+  if(la) rc.push([la.ratio>1?'Unusual spike':'Unusual drop',la.ratio>1?'Check whether an appliance ran longer than usual in '+mlabel(la.m)+' — usage was '+Math.round((la.ratio-1)*100)+'% higher than a year earlier.':'Usage fell '+Math.round((1-la.ratio)*100)+'% in '+mlabel(la.m)+' compared with a year earlier — make sure that was expected.']);
+  if(f&&f.u>avg*1.1) rc.push(['Next month','Your forecast ('+Math.round(f.u)+' units) is above your average of '+Math.round(avg)+'. Plan heavy-appliance use and cooling carefully.']);
+  rc.push(['General','Shift heavy appliance use to off-peak hours if your tariff has time-of-day pricing.']);
+  $('#recs').innerHTML=rc.map(r=>`<div class="rec"><b>${r[0]}</b>${r[1]}</div>`).join('');
+  updateGate(); if(cur==='dashboard') animateIn();}
+function upSim(init){const f=VIEW.f; if(!f||!VIEW.shares) return; const sh=VIEW.shares[$('#sapp').value]||0, pc=+$('#sp').value; $('#spl').textContent=(pc>0?'+':'')+pc+'% usage';
+  const na=Math.round(Math.max(0,f.u+f.u*sh*pc/100)*f.rate), sv=Math.round(f.amt)-na, ms=init?1:350;
+  tween($('#sa'),simShown.a,na,v=>'₹'+Math.round(v),ms); tween($('#ss'),simShown.s,sv,v=>(v>=0?'₹'+Math.round(v):'-₹'+Math.abs(Math.round(v)))+' / month',ms); simShown={a:na,s:sv};}
+function animateIn(){const f=VIEW.f;
+  if(f){tween($('#amt'),0,Math.round(f.amt),v=>Math.round(v),1200); $('#rb').style.width='0%'; setTimeout(()=>$('#rb').style.width='28%',250);}
+  $$('.ap i').forEach(i=>{i.style.width='0%'; setTimeout(()=>i.style.width=i.dataset.w+'%',300);});
+  const lp=$('#lp'); if(lp){const L=lp.getTotalLength(); lp.style.transition='none'; lp.style.strokeDasharray=L; lp.style.strokeDashoffset=L; lp.getBoundingClientRect(); lp.style.transition='stroke-dashoffset 1.5s ease'; lp.style.strokeDashoffset=0;}}
+function runDash(){animateIn();}
+$('#sapp').addEventListener('change',()=>upSim()); $('#sp').addEventListener('input',()=>upSim());
+
+/* answers the Watt chatbot gives about *your* data */
+function forecastText(){const f=VIEW.f; if(!f) return 'I need at least 3 months of bills to forecast. Add more on the Add Bill page.'; return 'Your forecast for '+mlabel(f.m)+' is about '+Math.round(f.u)+' units (₹'+Math.round(f.amt)+'), likely between '+Math.round(f.lo)+' and '+Math.round(f.hi)+'. It is a regression on your bill history'+(D.rows.length>=12?' that also learns your seasonal pattern.':' (once you have 12+ months it also learns the seasons).');}
+function anomText(){const an=anomalies(D.rows); if(!an.length) return D.rows.length<13?'Unusual-month checks compare each month with the same month a year earlier, so I need 13+ months of bills first.':'No month stands out against the same month a year earlier, so nothing is flagged.'; const a=an[an.length-1]; return mlabel(a.m)+' ('+a.u+' units) is '+Math.round(Math.abs(a.ratio-1)*100)+'% '+(a.ratio>1?'higher':'lower')+' than the same month a year earlier ('+a.prev+' units), so it is flagged.';}
+function applText(){const l=D.rows[D.rows.length-1], ap=l.ap; if(!ap) return 'Your data has no appliance columns yet. Add ac_units, fridge_units and so on to see a breakdown.'; const k=top1(ap); return APN[k]+' is the biggest share ('+Math.round(100*ap[k]/sum(ap))+'%) of '+mlabel(l.m)+'.';}
+function tipText(){const ap=D.rows[D.rows.length-1].ap; return ap?TIP[top1(ap)]:'Shift heavy appliance use to off-peak hours if your tariff has time-of-day pricing.';}
+
+(function init(){const raw=LS.get('sea_session'); if(raw){try{const s=JSON.parse(raw); if(s&&s.email&&users()[s.email]) setSession(s);}catch(e){}} renderAuth(); renderLogin(); render(); updateNav(); updateGate(); $$('#nav a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault(); go(a.getAttribute('href').slice(1));}));})();
+
+/* Watt chatbot */
+const PAGE={login:"This is the login page. Log in (or continue as a guest) to get started — your bills and forecasts stay tied to your account. After that you'll move on to “Add Bill”, where you bring in your usage data.",
+ 'add-bill':"This page is where you give me your electricity data. Pick one of three ways: CSV Upload for a spreadsheet of past bills, Manual Entry for a single bill, or Bill Photo (OCR) to read a photo of your bill. When you're done, scroll down to see your dashboard.",
+ dashboard:"This dashboard turns your bill into insight. At the top is the latest bill in your data, then next month's forecast, a trend chart with unusual months flagged, an appliance-wise breakdown, a what-if simulator to test savings, and personalized tips at the bottom."};
+const KB=[
+ [['show me the dashboard','take me to the dashboard','go to dashboard'],()=>{if($('#dashboard').hidden&&!(S&&dataReady)) return "The dashboard unlocks once you're logged in (or a guest) and have added your bill data."; setTimeout(()=>go('dashboard'),500); return "Sure — taking you to the dashboard now. ⬇️";}],
+ [['smart energy advisor','what is smart'],"Smart Energy Advisor forecasts your next electricity bill, flags unusual usage, shows which appliances use the most and gives personalised saving tips — all from your own bill history."],
+ [['what can you do','capabilit'],"I can explain any part of this page, tell you how the forecast, anomaly flag and simulator work, and guide you through adding your bill. Just ask — or tap an option."],
+ [['get started','how do i start','begin'],"Easy: log in (or continue as a guest), add your bill by CSV, manual entry or a photo, then scroll to your dashboard to see your forecast and tips."],
+ [['what can i do','what is this','overview'],()=>PAGE[cur]],
+ [['safe','privacy','secure'],"Your bills stay in this browser (local storage) and are never uploaded to a server. Accounts here are demo-level, so don't reuse a real password."],
+ [['account','sign','guest','password','login','log in'],"Create an account to keep your bills saved in this browser, or tap “Continue as guest” to try everything. Guest data isn't saved once you close the page."],
+ [['which option','pick','choose','best way'],"Got a spreadsheet of past bills? Use CSV Upload. Just one bill in hand? Manual Entry is quickest. Have a photo? OCR reads it for you — no typing."],
+ [['csv','spreadsheet','column','excel'],"Your CSV needs billing_month, units_consumed and bill_amount. Add appliance columns (ac_units, fridge_units…) to unlock the appliance breakdown and the what-if simulator."],
+ [['ocr','photo','misread','scan','image'],"OCR runs in your browser on the photo you pick. It works best on clear bills with English text — always check the month, units and amount before confirming."],
+ [['manual','type'],"Manual Entry takes three things from your paper bill: the billing month, units consumed and bill amount. Add one month at a time."],
+ [['forecast','predict','next month'],()=>forecastText()],
+ [['anomal','spike','unusual','flag'],()=>anomText()],
+ [['simulat','what-if','what if','slider'],"Pick an appliance, drag the slider to use it more or less, and the simulated bill and savings update instantly — e.g. cutting AC use by 20% changes next month's estimate."],
+ [['appliance','breakdown','fridge','share'],()=>applText()],
+ [['recommend','tip','save','reduce','lower'],()=>tipText()],
+ [['who','made','project','built'],"Smart Energy Advisor is a final-year Data Science field project by Sakshi Shelke — forecasting, anomaly detection, OCR and recommendations in one place."],
+ [['hi','hello','hey','thanks','thank'],"Hi! I'm Watt ⚡ — ask me about anything on this page, or tap “Explain this page”."]];
+const CHIPS={login:["What can I do here?","Do I need an account?","Is my data safe?"],
+ 'add-bill':["Which option should I pick?","What does my CSV need?","What if OCR misreads?"],
+ dashboard:["How is the forecast made?","What's the anomaly flag?","How do I use the simulator?"]};
+function answer(q){const n=q.toLowerCase();
+  if(/explain|describe|this page|this dashboard|walk me/.test(n)) return PAGE[cur];
+  for(const [ks,a] of KB) if(ks.some(k=>k.length<=3?new RegExp('\\b'+k+'\\b').test(n):n.includes(k))) return typeof a==='function'?a():a;
+  return "I'm not sure about that one yet. Try asking about the forecast, anomalies, the simulator, CSV or photo upload — or tap “Explain this page”.";}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const DOTS='<span class="dots"><span></span><span></span><span></span></span>';
+function say(t,who){const m=document.createElement('div'); m.className='m '+who; m.textContent=t; $('#msgs').appendChild(m); $('#msgs').scrollTop=1e5; return m;}
+function ask(q){ if(!q.trim()) return; say(q,'me'); const d=say('','bot'); d.innerHTML=DOTS;
+  setTimeout(()=>{d.textContent=answer(q); $('#msgs').scrollTop=1e5;},650);}
+async function botSay(t){const d=say('','bot'); d.innerHTML=DOTS; await sleep(850); d.textContent=t; $('#msgs').scrollTop=1e5; await sleep(380);}
+function renderChips(list){const c=$('#chips'); c.innerHTML=''; const L=list||CHIPS[cur];
+  L.forEach((q,i)=>{const b=document.createElement('button'); b.className='chip'; b.type='button'; b.textContent=q; b.style.setProperty('--d',i*.08+'s'); b.onclick=()=>ask(q); c.appendChild(b);});
+  const e=document.createElement('button'); e.className='chip ex'; e.type='button'; e.textContent=cur==='dashboard'?'Explain this dashboard':'Explain this page'; e.style.setProperty('--d',L.length*.08+'s'); e.onclick=()=>ask(e.textContent); c.appendChild(e);}
+const INTRO_CHIPS=["What is Smart Energy Advisor?","What can you do?","How do I get started?","Is my data safe?","Show me the dashboard"];
+let introStarted=false;
+async function intro(){ if(introStarted) return; introStarted=true;
+  await botSay("Hi, welcome! I'm Watt ⚡ — your guide to Smart Energy Advisor.");
+  await botSay("I can help you forecast next month's bill, spot unusual usage and find simple ways to save.");
+  await botSay("Tap an option below, or just type your question.");
+  renderChips(INTRO_CHIPS); introPhase=false;}
+function setOpen(o,focus){$('#chat').classList.toggle('open',o); $('#fab').classList.add('seen'); if(o&&focus) setTimeout(()=>$('#cin').focus({preventScroll:true}),350);}
+$('#fab').addEventListener('click',()=>{const o=!$('#chat').classList.contains('open'); setOpen(o,true); if(o) intro();});
+$('#cx').addEventListener('click',()=>setOpen(false));
+$('#cform').addEventListener('submit',e=>{e.preventDefault(); const v=$('#cin').value; $('#cin').value=''; ask(v);});
+/* guided tour: Watt's floating coach marks, the rest of the screen stays blurred */
+const TOURS={
+ login:[
+  {tgt:'#fab',t:"Hi, I'm Watt ⚡",p:"I'm your guide to Smart Energy Advisor. Log in, or continue as a guest, and I'll unlock the next page for you.",b:['got']},
+  {tgt:'#loginForm',t:"Log in",p:"Log in to keep your bills saved, or just continue as a guest.",b:['got','try'],act:()=>{const i=$('#loginForm input'); if(i) i.focus({preventScroll:true});}}],
+ 'add-bill':[
+  {tgt:'#fab',t:"You're in! 🎉",p:"Now let's add your bill. I'll show you the three ways to do it.",b:['got']},
+  {tgt:'#o-csv',t:"CSV Upload",p:"Got a spreadsheet of past bills? Upload it here. Best when you have several months.",b:['got','try'],act:()=>pick('csv')},
+  {tgt:'#o-manual',t:"Manual Entry",p:"Just one paper bill? Type the month, units and amount. It takes seconds.",b:['got','try'],act:()=>{pick('manual'); setTimeout(()=>{const i=$('#panel input'); if(i) i.focus({preventScroll:true});},60);}},
+  {tgt:'#o-ocr',t:"Bill Photo (OCR)",p:"Snap a photo of your bill and I'll read the details. You can correct anything before saving.",b:['got','try'],act:()=>pick('ocr')},
+  {tgt:'#toDash',t:"Open your dashboard",p:"Once your data is in, tap this button and your dashboard unlocks.",b:['got']}],
+ dashboard:[
+  {tgt:'#fab',t:"Here's your dashboard",p:"Everything below is calculated from the bills you added.",b:['got']},
+  {tgt:'#dashboard .hero',t:"Your forecast",p:"Next month's predicted bill and its likely range, built from your bill history.",b:['got']},
+  {tgt:()=>$('#sapp').closest('.card'),t:"What-if simulator",p:"Pick an appliance, drag the slider and watch your bill and savings change instantly.",b:['got','try'],act:()=>{const s=$('#sp'); if(s&&!s.closest('[hidden]')) s.focus({preventScroll:true});}},
+  {tgt:'#fab',t:"You're all set 🎉",p:"I'm always here. Tap me, type any question, or hit “Explain this dashboard”.",b:['done']}]};
+let STEPS=TOURS.login, grp='login', tourOff=false; const toured={};
+const dim=$('#dim'), ring=$('#ring'), tip=$('#tip'), root=document.documentElement;
+let ti=0,tok=0,spotEl=null,curEl=null;
+const lockUI=on=>{root.classList.toggle('lock',on); $$('main,header.top,#fab,#chat').forEach(e=>e.inert=on);};
+const clearSpot=()=>{if(spotEl){spotEl.classList.remove('spot'); spotEl=null;}};
+const elOf=s=>typeof s.tgt==='function'?s.tgt():$(s.tgt);
+const radOf=(el,r)=>{const v=getComputedStyle(el).borderTopLeftRadius; return v.includes('%')?parseFloat(v)/100*Math.min(r.width,r.height):(parseFloat(v)||0);};
+function holePath(r,p,q0){const W=root.clientWidth,H=innerHeight,x=r.left-p,y=r.top-p,w=r.width+2*p,h=r.height+2*p,q=Math.min(q0,w/2,h/2);
+  return `path(evenodd,"M0 0H${W}V${H}H0Z M${x+q} ${y}H${x+w-q}A${q} ${q} 0 0 1 ${x+w} ${y+q}V${y+h-q}A${q} ${q} 0 0 1 ${x+w-q} ${y+h}H${x+q}A${q} ${q} 0 0 1 ${x} ${y+h-q}V${y+q}A${q} ${q} 0 0 1 ${x+q} ${y}Z")`;}
+async function settle(el){let same=0,lt=NaN,ll=NaN; for(let i=0;i<40&&same<3;i++){await sleep(70); const r=el.getBoundingClientRect(); same=(Math.abs(r.top-lt)<.5&&Math.abs(r.left-ll)<.5)?same+1:0; lt=r.top; ll=r.left;}}
+function mk(label,cls,fn){const b=document.createElement('button'); b.type='button'; b.className='btn '+cls; b.textContent=label; b.onclick=fn; return b;}
+function place(r){
+  const W=root.clientWidth,H=innerHeight,m=12,g=16,tw=tip.offsetWidth,th=tip.offsetHeight; let side,x,y;
+  if(H-r.bottom-g-m>=th) side='b'; else if(r.top-g-m>=th) side='t'; else if(W-r.right-g-m>=tw) side='r'; else if(r.left-g-m>=tw) side='l'; else side='n';
+  if(side==='b'||side==='t'){x=Math.min(Math.max(m,r.left+r.width/2-tw/2),W-tw-m); y=side==='b'?r.bottom+g:r.top-g-th; tip.style.setProperty('--ax',Math.min(Math.max(22,r.left+r.width/2-x),tw-22)+'px');}
+  else if(side==='r'||side==='l'){y=Math.min(Math.max(m,r.top+r.height/2-th/2),H-th-m); x=side==='r'?r.right+g:r.left-g-tw; tip.style.setProperty('--ay',Math.min(Math.max(22,r.top+r.height/2-y),th-22)+'px');}
+  else {x=Math.max(m,(W-tw)/2); y=(r.top+r.height/2>H/2)?72:H-th-m-76;}
+  tip.style.left=x+'px'; tip.style.top=y+'px'; tip.classList.add(side);
+}
+function layout(){
+  const s=STEPS[ti], r=curEl.getBoundingClientRect(), p=8, rad=radOf(curEl,r)+p;
+  dim.style.clipPath=holePath(r,p,rad);
+  Object.assign(ring.style,{left:r.left-p+'px',top:r.top-p+'px',width:r.width+2*p+'px',height:r.height+2*p+'px',borderRadius:rad+'px'}); ring.classList.add('on');
+  $('#tt').textContent=s.t; $('#tp').textContent=s.p; $('#tcount').textContent=(ti+1)+' / '+STEPS.length;
+  const ta=$('#ta'); ta.innerHTML='';
+  s.b.forEach(k=>{if(k==='got') ta.appendChild(mk('Got it','',nextStep)); if(k==='try') ta.appendChild(mk('Try it','try',tryIt)); if(k==='done') ta.appendChild(mk('Start exploring','try',endTour));});
+  if(!s.b.includes('done')){const k=document.createElement('button'); k.type='button'; k.className='skip'; k.textContent='Skip tour'; k.onclick=skipTour; ta.appendChild(k);}
+  tip.classList.remove('b','t','l','r','n'); place(r); tip.classList.add('on'); ta.firstChild.focus({preventScroll:true});
+}
+async function showStep(i){
+  const my=++tok; ti=i; curEl=elOf(STEPS[i]);
+  tip.classList.remove('on'); ring.classList.remove('on'); dim.style.clipPath='none';
+  if(getComputedStyle(curEl).position!=='fixed') curEl.scrollIntoView({behavior:'smooth',block:'center'});
+  await sleep(120); await settle(curEl); if(my!==tok) return;
+  layout();
+}
+const nextStep=()=>{ if(ti<STEPS.length-1) showStep(ti+1); else endTour(); };
+function hideTour(){dim.classList.remove('on'); tip.classList.remove('on'); ring.classList.remove('on'); lockUI(false);}
+function tryIt(){const s=STEPS[ti]; tok++; hideTour(); clearSpot(); if(s.act) s.act(); spotEl=curEl; spotEl.classList.add('spot'); $('#resume').classList.add('on'); setTimeout(clearSpot,7000);}
+function resumeTour(){$('#resume').classList.remove('on'); clearSpot(); dim.classList.add('on'); lockUI(true); showStep(Math.min(ti+1,STEPS.length-1));}
+function endTour(){tok++; hideTour(); $('#resume').classList.remove('on'); clearSpot(); $('#fab').classList.remove('hold'); go(grp);}
+const skipTour=()=>{tourOff=true; endTour();};
+function maybeTour(g){ if(tourOff||toured[g]) return; toured[g]=true; startTour(g); }
+function startTour(g){grp=TOURS[g]?g:'login'; STEPS=TOURS[grp]; setOpen(false); $('#resume').classList.remove('on'); clearSpot(); if(grp==='login') window.scrollTo({top:0,behavior:'instant'}); $('#fab').classList.add('hold'); dim.classList.add('on'); lockUI(true); showStep(0);}
+$('#rgo').onclick=resumeTour; $('#rx').onclick=skipTour; $('#retour').onclick=()=>startTour(cur);
+addEventListener('resize',()=>{if(tip.classList.contains('on')) layout();});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&dim.classList.contains('on')) skipTour();});
+addEventListener('load',()=>setTimeout(()=>{toured.login=true; startTour('login');},500));
+</script>
+</body>
+</html>
